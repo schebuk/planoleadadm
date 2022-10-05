@@ -6,35 +6,32 @@
         <v-card-title class="d-flex align-center justify-center py-7">
           <router-link to="/" class="d-flex align-center">
             <v-img
-              :src="require('@/assets/images/logos/logo.svg').default"
-              max-height="30px"
-              max-width="30px"
+              :src="require('@/assets/images/logos/logo.png').default"
               alt="logo"
               contain
               class="me-3"
             ></v-img>
 
-            <h2 class="text-2xl font-weight-semibold">Materio</h2>
           </router-link>
         </v-card-title>
 
         <!-- login form -->
         <v-card-text>
-          <v-form>
+          <v-form action="#" @submit.prevent="handleSubmit">
             <v-text-field
-              v-model="email"
               outlined
               label="Email"
               placeholder="john@example.com"
               hide-details
               class="mb-3"
+              v-model="formData.email"
             ></v-text-field>
 
             <v-text-field
-              v-model="password"
               outlined
               :type="isPasswordVisible ? 'text' : 'password'"
-              label="Password"
+              label="Senha"
+              v-model="formData.password"
               placeholder="············"
               :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
               hide-details
@@ -45,40 +42,22 @@
               <v-checkbox label="Remember Me" hide-details class="me-3 mt-1"> </v-checkbox>
 
               <!-- forgot link -->
-              <a href="javascript:void(0)" class="mt-1"> Forgot Password? </a>
+              <a href="javascript:void(0)" class="mt-1"> Esqueceu a senha? </a>
             </div>
 
-            <v-btn block color="primary" class="mt-6"> Login </v-btn>
+            <v-btn type="submit" block color="primary" class="mt-6"> Entrar </v-btn>
           </v-form>
         </v-card-text>
 
         <!-- create new account  -->
         <v-card-text class="d-flex align-center justify-center flex-wrap mt-2">
-          <span class="me-2"> New on our platform? </span>
-          <router-link :to="{ name: 'register' }"> Create an account </router-link>
+          <router-link :to="{ name: 'register' }"> Cadastro</router-link>
         </v-card-text>
 
         
       </v-card>
     </div>
 
-    <!-- background triangle shape  -->
-    <img
-      class="auth-mask-bg"
-      height="173"
-      :src="require(`@/assets/images/misc/mask-${$vuetify.theme.dark ? 'dark' : 'light'}.png`).default"
-    />
-
-    <!-- tree -->
-    <v-img class="auth-tree" width="247" height="185" :src="require('@/assets/images/misc/tree.png').default"></v-img>
-
-    <!-- tree  -->
-    <v-img
-      class="auth-tree-3"
-      width="377"
-      height="289"
-      :src="require('@/assets/images/misc/tree-3.png').default"
-    ></v-img>
   </div>
 </template>
 
@@ -86,17 +65,40 @@
 // eslint-disable-next-line object-curly-newline
 import { mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
 import { ref } from '@vue/composition-api'
+import Auth from '../../Auth.js';
+import router from '../router'
 
-export default {
+export default {name: 'login',
+  data () {
+    return {
+      formData:{
+        email: '',
+        password:'',
+      }
+    }
+  },
+  methods: {
+    handleSubmit() {
+      let data = {
+        email: this.formData.email,
+        password:this.formData.password, 
+      };
+      axios.post('/api/auth/login', data)
+      .then(function (response) {
+        //console.log(response);
+        Auth.login(response.data.access_token, response.data.user);
+        router.push('/dashboard');
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+    }
+  },
   setup() {
     const isPasswordVisible = ref(false)
-    const email = ref('')
-    const password = ref('')
 
     return {
       isPasswordVisible,
-      email,
-      password,
 
       icons: {
         mdiEyeOutline,

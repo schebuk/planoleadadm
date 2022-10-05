@@ -7,6 +7,9 @@
 </template>
 
 <script>
+  
+import Auth from '../../Auth.js';
+import router from '../router'
 export default {}
 </script>
 
