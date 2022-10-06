@@ -1,72 +1,48 @@
 <template>
-  
-  <v-simple-table>
-    <template v-slot:default>
-      <thead>
-        <tr>
-          <th class="text-uppercase">
-            nome
-          </th>
-          <th class="text-uppercase">
-            email
-          </th>
-          <th class="text-center text-uppercase">
-            telephone
-          </th>
-          <th class="text-center text-uppercase">
-            regraId
-          </th>
-          <th class="text-center text-uppercase">
-            status 
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="item in users"
-          :key="item.data"
-        >
-          <td>{{ item.name }}</td>
-          <td class="text-center">
-            {{ item.email }}
-          </td>
-          <td class="text-center">
-            {{ item.telephone }}
-          </td>
-          <td class="text-center">
-            {{ item.regraId }}
-          </td>
-          <td class="text-center">
-            {{ item.status }}
-          </td>
-        </tr>
-      </tbody>
-    </template>
-  </v-simple-table>
-
+  <ag-grid-vue style="width: 100%; height: 500px;"
+      class="ag-theme-alpine"
+      :columnDefs="columnDefs"
+      :rowData="rowData"
+      :pagination="true"
+      :paginationAutoPageSize="true">
+  </ag-grid-vue>
 </template>
-
 <script>
+  import { AgGridVue } from "ag-grid-vue";
+  
   export default {
-   name: "Users",
-   data() {
-     return {
-       users: {},
-     };
-   },
-   created() {
-     this.getUser();
-   },
-   methods: {
-     getUser() {
-       axios.get("/api/users/")
+    name: "Table",
+    data() {
+      return {
+        columnDefs: null,
+        rowData: null,
+      };
+    },
+    components: {
+      AgGridVue,
+    },
+    beforeMount() {
+      this.columnDefs = [
+        { field: "name",sortable: true, filter: true  },
+        { field: "email",sortable: true , filter: true },
+        { field: "user",sortable: true, filter: true  },
+        { field: "telephone",sortable: true, filter: true  },
+        { field: "regraId",sortable: true, filter: true  },
+        { field: "status",sortable: true, filter: true  },
+      ];
+      axios.get("/api/users/")
         .then((res) => {
-           this.users = res.data;
+          this.rowData =res.data;
         })
         .catch((error) => {
           console.log(error);
         });
-     },
-   },
-  }
-</script>
+
+      
+    },
+  };
+  </script>
+  <style lang="scss">
+     @import "~ag-grid-community/styles/ag-grid.css";
+     @import "~ag-grid-community/styles/ag-theme-alpine.css";
+  </style>
