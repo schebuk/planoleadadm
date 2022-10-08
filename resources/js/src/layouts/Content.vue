@@ -82,12 +82,6 @@ export default {
       user: Auth.user
     };
   },
-  mounted() {
-    Event.$on('userLoggedIn', () => {
-      this.authenticated = true;
-      this.user = auth.user;
-    });
-  },
   setup() {
     const isDrawerOpen = ref(null)
 

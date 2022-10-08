@@ -6,10 +6,8 @@ import Auth from '../../Auth.js';
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/dashboard/Dashboard.vue'
 import Users from '@/views/Users.vue'
-import Typography from '@/views/typography/Typography.vue'
 import Icons from '@/views/icons/Icons.vue'
 import Card from '@/views/cards/Card.vue'
-import SimpleTable from '@/views/simple-table/SimpleTable.vue'
 import FormLayouts from '@/views/form-layouts/FormLayouts.vue'
 import Error from '@/views/Error.vue'
 import AccountSettings from '@/views/pages/account-settings/AccountSettings.vue'
@@ -41,14 +39,6 @@ const routes = [
     },
   },
   {
-    path: '/typography',
-    name: 'typography',
-    component: Typography,
-    meta:{
-      requiresAuth: true,
-    },
-  },
-  {
     path: '/icons',
     name: 'icons',
     component: Icons,
@@ -60,14 +50,6 @@ const routes = [
     path: '/cards',
     name: 'cards',
     component: Card,
-    meta:{
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/simple-table',
-    name: 'simple-table',
-    component: SimpleTable,
     meta:{
       requiresAuth: true,
     },

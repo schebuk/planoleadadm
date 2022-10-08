@@ -11,6 +11,8 @@ import auth from '../Auth.js'
 Vue.use(router)
 Vue.use(auth)
 
+Vue.component('pagination', require('laravel-vue-pagination'));
+
 Vue.config.productionTip = false
 
 new Vue({
