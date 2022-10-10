@@ -13,13 +13,14 @@
     
     <template>
         <nav v-if="!client" class="v-data-footer ">
-            <span class="page-stats">{{pagination.from}} - {{pagination.to}} of {{pagination.total}}</span>
+            <span class="page-stats">{{pagination.from}} - {{pagination.to}} of {{pagination.totalPages}}</span>
             <a v-if="pagination.prevPageUrl" class="button is-small pagination-previous" @click="$emit('prev');">
                 Prev
             </a>
             <a class="button is-small pagination-previous" v-else :disabled="true">
                Prev
             </a>
+    
             <a v-if="pagination.nextPageUrl" class="button is-small pagination-next" @click="$emit('next');">
                 Next
             </a>

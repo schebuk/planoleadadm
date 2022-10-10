@@ -10,7 +10,7 @@
                 <v-col
                   class="d-flex"
                   cols="12"
-                  sm="8"
+                  sm="12"
                 >          
                   <v-text-field
                     v-model="tableData.search"
@@ -26,7 +26,7 @@
                 <v-col
                   class="d-flex"
                   cols="12"
-                  sm="8"
+                  sm="12"
                 >
                   <v-select
                     :items="searchTypeItens"
@@ -55,14 +55,14 @@
         <v-select 
           width="30"
           v-model="tableData.length" 
+          label="Register per page"
           @change="getUsers()" 
           :items="perPage"
         ></v-select>
         
         <pagination :pagination="pagination"
           @prev="getUsers(pagination.prevPageUrl)"
-          @next="getUsers(pagination.nextPageUrl)">
-          
+          @next="getUsers(pagination.nextPageUrl)"> 
         </pagination>
       </div>
     </div>
@@ -139,16 +139,19 @@ export default {
           lastPage: '',
           currentPage: '',
           total: '',
+          totalPages:'',
           lastPageUrl: '',
           nextPageUrl: '',
           prevPageUrl: '',
           from: '',
-          to: ''
+          to: '',
+          links: {},
         },
       }
     },
     methods: {
       getUsers(url = '/api/users/') {
+        console.log(url)
             this.tableData.draw++;
             axios.get(url, {params: this.tableData})
                 .then(response => {
@@ -166,11 +169,13 @@ export default {
             this.pagination.lastPage = data.last_page;
             this.pagination.currentPage = data.current_page;
             this.pagination.total = data.total;
+            this.pagination.totalPages = Math.ceil(parseInt(data.total) / parseInt(data.per_page));
             this.pagination.lastPageUrl = data.last_page_url;
             this.pagination.nextPageUrl = data.next_page_url;
             this.pagination.prevPageUrl = data.prev_page_url;
             this.pagination.from = data.from;
             this.pagination.to = data.to;
+            this.pagination.path = data.path;
         },
         sortBy(key) {
             this.sortKey = key;
@@ -196,7 +201,7 @@ export default {
                 this.showFilterfield[column.name] = false;
             });
             this.showFilterfield[key] = !this.showFilterfield[key]
-        }
+        },
     }
 };
   </script>
