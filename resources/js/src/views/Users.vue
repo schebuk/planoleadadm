@@ -1,43 +1,10 @@
 <template>
   <div class="Users">
-    
-
     <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" @sort="sortBy" @showFilter="showFilter">
         <tbody>
-          <tr >
-            <td v-for="column in columns" style=" height:0;">
-              <div class="tableFilters" v-if="showFilterfield[column.name]">     
-                <v-col
-                  class="d-flex"
-                  cols="12"
-                  sm="12"
-                >          
-                  <v-text-field
-                    v-model="tableData.search"
-                    outlined
-                    dense
-                    placeholder="Search"
-                    icon
-                    :searchField="column.name"
-                    @keydown="setSearchField"
-                    hide-details
-                  ></v-text-field>
-                </v-col>
-                <v-col
-                  class="d-flex"
-                  cols="12"
-                  sm="12"
-                >
-                  <v-select
-                    :items="searchTypeItens"
-                    label="Search Type"
-                    v-model="tableData.searchType"
-                    filled
-                    dense
-                    @change="getUsers()"
-                  ></v-select>
-                </v-col>
-              </div>
+          <tr class="filterConteinertr">
+            <td v-for="column in columns" class="filterConteinertd">
+              <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
             </td>
           </tr>
           <tr v-for="user in Users" :key="user.id">
@@ -46,7 +13,13 @@
               <td>{{user.telephone}}</td>
               <td>{{user.user}}</td>
               <td>{{user.regraId}}</td>
-              <td>{{user.status}}</td>
+              <td>
+                <v-switch
+                  :v-model="user.status"
+                  inset
+                ></v-switch>
+              </td>
+              <td>{{user.created_at}}</td>
           </tr>
         </tbody>
     </datatable>
@@ -60,37 +33,40 @@
           :items="perPage"
         ></v-select>
         
-        <pagination :pagination="pagination"
-          @prev="getUsers(pagination.prevPageUrl)"
-          @next="getUsers(pagination.nextPageUrl)"> 
-        </pagination>
+        <Pagination 
+          :data="pagination.data" 
+          @pagination-change-page="getUsers" 
+          :limit="3"
+          :show-disabled="true"
+        >
+          <template #prev-nav>
+              <span>&lt;&lt; </span>
+          </template>
+          <template #next-nav>
+              <span>&gt;&gt;</span>
+          </template>
+        </Pagination>
       </div>
     </div>
   </div>
-</div>
 </template>
-<style>
-  .table {
-    width: 100%;
-  }
-  .tableFilters{
-    position: absolute;
-    border: 1px black solid;
-    background-color: azure;
-    top:60px;
-  }
-</style>
+
 <script>  
 
 import Datatable from './Datatable.vue';
-import Pagination from './Pagination.vue';
+import TableFilter from './TableFIlter.vue';
+import LaravelVuePagination from 'laravel-vue-pagination';
 
 import {
   mdiMagnify,
   mdiFilter,
 } from '@mdi/js'
 export default {
-    components: { datatable: Datatable, pagination: Pagination },
+    components: { 
+      datatable: Datatable, 
+      TableFilter:TableFilter,
+      'Pagination': LaravelVuePagination 
+    },
     created() {
         this.getUsers();
     },
@@ -104,15 +80,15 @@ export default {
       let sortOrders = {};
       let showFilterfield = {};
       let columns = [
-          {width: '18%', label: 'name', name: 'name' },
-          {width: '18%', label: 'email', name: 'email'},
-          {width: '18%', label: 'telephone', name: 'telephone'},
-          {width: '18%', label: 'user', name: 'user'},
-          {width: '18%', label: 'regraId', name: 'regraId'},
-          {width: '18%', label: 'status', name: 'status'},
+          {width: '14%', label: 'name', name: 'name',type:'string' },
+          {width: '14%', label: 'email', name: 'email',type:'string'},
+          {width: '14%', label: 'telephone', name: 'telephone',type:'number'},
+          {width: '14%', label: 'user', name: 'user',type:'string'},
+          {width: '14%', label: 'regraId', name: 'regraId',type:'bool'},
+          {width: '14%', label: 'status', name: 'status',type:'bool'},
+          {width: '14%', label: 'created_at', name: 'created_at',type:'date'},
       ];
-      let searchTypeItens = ['contains','start','end','equal','notequal','greater','greaterequal','lesser','lesserequal'];
-      let searchFields = ['name','email','telephone','user','regraId','status']
+      let searchFields = ['name','email','telephone','user','regraId','status','created_at']
       columns.forEach((column) => {
           sortOrders[column.name] = 0;
           showFilterfield[column.name] = false;
@@ -124,7 +100,6 @@ export default {
         sortOrders: sortOrders,
         showFilterfield: showFilterfield,
         perPage: ['10', '50', '100'],
-        searchTypeItens,
         searchFields,
         tableData: {
           draw: 0,
@@ -132,33 +107,24 @@ export default {
           search: '',
           searchType: 'contains',
           searchField: '',
+          operator:'AND',
+          search2: '',
+          searchType2: 'contains',
           column: 0,
           dir: 'asc',
         },
-        pagination: {
-          lastPage: '',
-          currentPage: '',
-          total: '',
-          totalPages:'',
-          lastPageUrl: '',
-          nextPageUrl: '',
-          prevPageUrl: '',
-          from: '',
-          to: '',
-          links: {},
-        },
+        pagination:{},
       }
     },
     methods: {
-      getUsers(url = '/api/users/') {
-        console.log(url)
+      getUsers(page = 1,url = '/api/users/?page=') {
             this.tableData.draw++;
-            axios.get(url, {params: this.tableData})
+            axios.get(url + page, {params: this.tableData})
                 .then(response => {
                     let data = response.data;
                     if (this.tableData.draw == data.draw) {
                         this.Users = data.data.data;
-                        this.configPagination(data.data);
+                        this.configPagination(data);
                     }
                 })
                 .catch(errors => {
@@ -166,16 +132,7 @@ export default {
                 });
         },
         configPagination(data) {
-            this.pagination.lastPage = data.last_page;
-            this.pagination.currentPage = data.current_page;
-            this.pagination.total = data.total;
-            this.pagination.totalPages = Math.ceil(parseInt(data.total) / parseInt(data.per_page));
-            this.pagination.lastPageUrl = data.last_page_url;
-            this.pagination.nextPageUrl = data.next_page_url;
-            this.pagination.prevPageUrl = data.prev_page_url;
-            this.pagination.from = data.from;
-            this.pagination.to = data.to;
-            this.pagination.path = data.path;
+            this.pagination = data;
         },
         sortBy(key) {
             this.sortKey = key;
@@ -191,8 +148,13 @@ export default {
         getIndex(array, key, value) {
             return array.findIndex(i => i[key] == value)
         },
-        setSearchField: function(event){
-          this.tableData.searchField = event.target.attributes.searchfield.value;
+        setSearchField(val){
+          this.tableData.searchField = val.field;
+          this.tableData.search = val.search;
+          this.tableData.searchType = val.type;
+          this.tableData.operator = val.operator;
+          this.tableData.searchType2 = val.type2; 
+          this.tableData.search2 = val.search2;
           this.getUsers()
         },
         showFilter(key){
@@ -200,6 +162,8 @@ export default {
               if (column.name != key)
                 this.showFilterfield[column.name] = false;
             });
+            this.tableData.search = '';
+            this.tableData.search2 = '';
             this.showFilterfield[key] = !this.showFilterfield[key]
         },
     }
