@@ -3,6 +3,7 @@ import Vue from 'vue'
 // axios
 import axios from 'axios'
 
+
 window.axios = axios;
 /*
 axios.defaults.headers.common = {
@@ -11,11 +12,7 @@ axios.defaults.headers.common = {
 };*/
 
 const axiosIns = axios.create({
-  // You can add your headers here
-  // ================================
-  baseURL: 'http://planoleadadm.test',
-  // timeout: 1000,
-  // headers: {'X-Custom-Header': 'foobar'}
+  baseURL: process.env.APP_URL,
 })
 
 Vue.prototype.$http = axiosIns
