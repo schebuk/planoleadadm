@@ -201,7 +201,6 @@
     <div v-else-if="column.type == 'date'">
         <div class="tableFilters" v-if="showFilterfield[column.name]" 
         :id="'filterdiv'+[column.name]"
-        @focusout="handleFocusOut($event,column.name)"
         tabindex="0">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>      
