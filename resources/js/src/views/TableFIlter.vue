@@ -3,7 +3,7 @@
         <div 
             class="tableFilters" 
             v-if="showFilterfield[column.name]" 
-            id="filterdiv"
+            :id="'filterdiv'+[column.name]"
             @focusout="handleFocusOut($event,column.name)"
             tabindex="0"
         >
@@ -86,7 +86,10 @@
         </div>
     </div>
     <div v-else-if="column.type == 'number'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]">
+        <div class="tableFilters" v-if="showFilterfield[column.name]" 
+        :id="'filterdiv'+[column.name]"
+        @focusout="handleFocusOut($event,column.name)"
+        tabindex="0">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>      
                     <h3>Filter by {{column.name}}</h3>
@@ -168,7 +171,10 @@
         </div>
     </div>
     <div v-else-if="column.type == 'bool'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]">
+        <div class="tableFilters" v-if="showFilterfield[column.name]" 
+        :id="'filterdiv'+[column.name]"
+        @focusout="handleFocusOut($event,column.name)"
+        tabindex="0">
             <v-row no-gutters>
                 <v-col
                     class="d-inline-flex pa-2"
@@ -193,7 +199,10 @@
 
     </div>
     <div v-else-if="column.type == 'date'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]" >
+        <div class="tableFilters" v-if="showFilterfield[column.name]" 
+        :id="'filterdiv'+[column.name]"
+        @focusout="handleFocusOut($event,column.name)"
+        tabindex="0">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>      
                     <h3>Filter by {{column.name}}</h3>

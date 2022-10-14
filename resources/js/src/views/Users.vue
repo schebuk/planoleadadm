@@ -182,7 +182,10 @@ export default {
             this.tableData.search2 = '';
             this.showFilterfield[key] = !this.showFilterfield[key];
             this.$nextTick(() => {
-              this.$el.querySelector("#filterdiv").focus()
+              let divfilter = "#filterdiv"+key
+              console.log(divfilter)
+              console.log(this.$el.querySelector(divfilter))
+              this.$el.querySelector(divfilter).focus()
             },1);
         },
     }
