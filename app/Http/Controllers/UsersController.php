@@ -37,6 +37,10 @@ class UsersController extends Controller
                 break;
             case 'equal':
                 $searchType = '=';
+                if ($searchValue == 0){
+                    $searchValue = 1;
+                    $searchType = '!=';
+                }
                 break;
             case 'notequal':
                 $searchType = '<>';

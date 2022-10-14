@@ -1,12 +1,12 @@
 <template>
   <div class="Users">
+    <ul class="filterConteiner">
+      <li v-for="column in columns" :style="'width:'+column.width">
+        <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
+      </li>
+    </ul>
     <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" @sort="sortBy" @showFilter="showFilter">
         <tbody>
-          <tr class="filterConteinertr">
-            <td v-for="column in columns" class="filterConteinertd">
-              <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
-            </td>
-          </tr>
           <tr v-for="user in Users" :key="user.id">
               <td>{{user.name}} 
               <td>{{user.email}}</td>
@@ -25,27 +25,43 @@
     </datatable>
     <div class="control">
       <div class="select">
-        <v-select 
-          width="30"
-          v-model="tableData.length" 
-          label="Register per page"
-          @change="getUsers()" 
-          :items="perPage"
-        ></v-select>
-        
-        <Pagination 
-          :data="pagination.data" 
-          @pagination-change-page="getUsers" 
-          :limit="3"
-          :show-disabled="true"
-        >
-          <template #prev-nav>
-              <span>&lt;&lt; </span>
-          </template>
-          <template #next-nav>
-              <span>&gt;&gt;</span>
-          </template>
-        </Pagination>
+        <v-row>
+          
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="2"
+            sm="2"
+          >  
+            <v-select 
+              width="30"
+              v-model="tableData.length" 
+              label="Register per page"
+              @change="getUsers()" 
+              :items="perPage"
+            ></v-select>
+          </v-col>
+          
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="10"
+            sm="10"
+            align-self="center"
+          >  
+            <Pagination 
+              :data="pagination.data" 
+              @pagination-change-page="getUsers" 
+              :limit="3"
+              :show-disabled="true"
+            >
+              <template #prev-nav>
+                  <span>&lt;&lt; </span>
+              </template>
+              <template #next-nav>
+                  <span>&gt;&gt;</span>
+              </template>
+            </Pagination>
+          </v-col>
+        </v-row>
       </div>
     </div>
   </div>
@@ -84,7 +100,7 @@ export default {
           {width: '14%', label: 'email', name: 'email',type:'string'},
           {width: '14%', label: 'telephone', name: 'telephone',type:'number'},
           {width: '14%', label: 'user', name: 'user',type:'string'},
-          {width: '14%', label: 'regraId', name: 'regraId',type:'bool'},
+          {width: '14%', label: 'regraId', name: 'regraId',type:'number'},
           {width: '14%', label: 'status', name: 'status',type:'bool'},
           {width: '14%', label: 'created_at', name: 'created_at',type:'date'},
       ];
@@ -164,7 +180,10 @@ export default {
             });
             this.tableData.search = '';
             this.tableData.search2 = '';
-            this.showFilterfield[key] = !this.showFilterfield[key]
+            this.showFilterfield[key] = !this.showFilterfield[key];
+            this.$nextTick(() => {
+              this.$el.querySelector("#filterdiv").focus()
+            },1);
         },
     }
 };

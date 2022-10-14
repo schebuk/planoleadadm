@@ -7,12 +7,13 @@ import router from './router'
 import store from './store'
 import axios from './plugins/axios'
 import auth from '../Auth.js'
+import DatetimePicker from 'vuetify-datetime-picker'
 
 Vue.use(router)
 Vue.use(auth)
+Vue.use(DatetimePicker)
 
 Vue.use(require('vue-resource'));
- 
 
 Vue.config.productionTip = false
 

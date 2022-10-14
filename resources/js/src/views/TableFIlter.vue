@@ -1,6 +1,12 @@
 <template>
     <div v-if="column.type == 'string'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]">
+        <div 
+            class="tableFilters" 
+            v-if="showFilterfield[column.name]" 
+            id="filterdiv"
+            @focusout="handleFocusOut($event,column.name)"
+            tabindex="0"
+        >
             <v-container class="grey lighten-5"></v-container>
                 <v-row no-gutters>      
                     <h3>Filter by {{column.name}}</h3>
@@ -80,85 +86,86 @@
         </div>
     </div>
     <div v-else-if="column.type == 'number'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]"><v-container class="grey lighten-5"></v-container>
-            <v-row no-gutters>      
-                <h3>Filter by {{column.name}}</h3>
-            </v-row>
-            
-            <v-row no-gutters>
-                <v-col
-                    class="d-inline-flex pa-2"
-                    cols="6"
-                    sm="6"
-                >          
-                    <v-text-field
-                        v-model="tableData.search"
-                        solo
-                        placeholder="Search"
-                        type="number"
-                        @keyup="setSearchField(column.name)"
-                        hide-details
-                    ></v-text-field>
-                </v-col>
-                <v-col
-                    class="d-inline-flex pa-2"
-                    cols="6"
-                    sm="6"
-                >    
-                    <v-select
+        <div class="tableFilters" v-if="showFilterfield[column.name]">
+            <v-container class="grey lighten-5">
+                <v-row no-gutters>      
+                    <h3>Filter by {{column.name}}</h3>
+                </v-row>
+                
+                <v-row no-gutters>
+                    <v-col
+                        class="d-inline-flex pa-2"
+                        cols="6"
+                        sm="6"
+                    >          
+                        <v-text-field
+                            v-model="tableData.search"
+                            solo
+                            placeholder="Search"
+                            type="number"
+                            @keyup="setSearchField(column.name)"
+                            hide-details
+                        ></v-text-field>
+                    </v-col>
+                    <v-col
+                        class="d-inline-flex pa-2"
+                        cols="6"
+                        sm="6"
+                    >    
+                        <v-select
+                            :items="searchTypeItensString"
+                            label="Search Type"
+                            v-model="tableData.searchType"
+                            solo
+                            @change="getUsers"
+                        ></v-select>
+                    </v-col>
+                </v-row>
+                <v-row no-gutters>
+                    <v-col
+                        class="d-inline-flex pa-2"
+                        cols="6"
+                        sm="6"
+                    >     
+                        <v-select
+                            :items="searchOperator"
+                            label="Search Type"
+                            v-model="tableData.operator"solo
+                            @change="getUsers"
+                        ></v-select>
+                    </v-col> 
+                </v-row>
+                <v-row no-gutters>
+                    <v-col
+                        class="d-inline-flex pa-2"
+                        cols="6"
+                        sm="6"
+                    >          
+                        <v-text-field
+                            v-model="tableData.search2"
+                            solo
+                            placeholder="Search"
+                            type="number"
+                            @keyup="setSearchField(column.name)"
+                            hide-details
+                        ></v-text-field>
+                    </v-col>
+                    <v-col
+                        class="d-inline-flex pa-2"
+                        cols="6"
+                        sm="6"
+                    >     
+                        <v-select
                         :items="searchTypeItensString"
                         label="Search Type"
-                        v-model="tableData.searchType"
+                        v-model="tableData.searchType2"
                         solo
                         @change="getUsers"
-                    ></v-select>
-                </v-col>
-            </v-row>
-            <v-row no-gutters>
-                <v-col
-                    class="d-inline-flex pa-2"
-                    cols="6"
-                    sm="6"
-                >     
-                    <v-select
-                        :items="searchOperator"
-                        label="Search Type"
-                        v-model="tableData.operator"solo
-                        @change="getUsers"
-                    ></v-select>
-                </v-col> 
-            </v-row>
-            <v-row no-gutters>
-                <v-col
-                    class="d-inline-flex pa-2"
-                    cols="6"
-                    sm="6"
-                >          
-                    <v-text-field
-                        v-model="tableData.search2"
-                        solo
-                        placeholder="Search"
-                        type="number"
-                        @keyup="setSearchField(column.name)"
-                        hide-details
-                    ></v-text-field>
-                </v-col>
-                <v-col
-                    class="d-inline-flex pa-2"
-                    cols="6"
-                    sm="6"
-                >     
-                    <v-select
-                    :items="searchTypeItensString"
-                    label="Search Type"
-                    v-model="tableData.searchType2"
-                    solo
-                    @change="getUsers"
-                    ></v-select>
-                </v-col>
-            </v-row>
-        </v-container></div>
-
+                        ></v-select>
+                    </v-col>
+                </v-row>
+            </v-container>
+        </div>
     </div>
     <div v-else-if="column.type == 'bool'">
         <div class="tableFilters" v-if="showFilterfield[column.name]">
@@ -167,23 +174,26 @@
                     class="d-inline-flex pa-2"
                     cols="12"
                     sm="12"
-                >          
-                    <v-text-field
-                        v-model="tableData.search"
-                        solo
-                        placeholder="Search"
-                        type="number"
-                        @keyup="setSearchField(column.name)"
-                        @input="setSearchField(column.name)"
-                        hide-details
-                    ></v-text-field>
+                >    
+                <v-radio-group 
+                    v-model="tableData.search"
+                    @change="setSearchField(column.name)">
+                    <v-radio
+                      label="Deactive"
+                      :value="0"
+                    ></v-radio>
+                    <v-radio
+                      label="Active"
+                      :value="1"
+                    ></v-radio>
+                </v-radio-group>      
                 </v-col>
             </v-row>
         </div>
 
     </div>
     <div v-else-if="column.type == 'date'">
-        <div class="tableFilters" v-if="showFilterfield[column.name]">
+        <div class="tableFilters" v-if="showFilterfield[column.name]" >
             <v-container class="grey lighten-5">
                 <v-row no-gutters>      
                     <h3>Filter by {{column.name}}</h3>
@@ -195,37 +205,13 @@
                     sm="6"
                     md="4"
                     >
-                    <v-menu
-                        ref="menu"
-                        v-model="menu"
-                        :close-on-content-click="true"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                        @change="setSearchField(column.name)"
-                        @input="setSearchField(column.name)"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                            readonly                            
+                    <v-datetime-picker 
+                        placeholder="Search"                     
                             v-model="tableData.search"
                             solo
-                            placeholder="Search"
                             @change="setSearchField(column.name)"
                             @input="setSearchField(column.name)"
-                            hide-details
-                            v-bind="attrs"
-                            v-on="on"
-                        ></v-text-field>
-                        </template>
-                        <v-date-picker
-                            v-model="tableData.search"
-                            no-title
-                            scrollable
-                            @click="clickDataPicker(column.name)"
-                        >
-                        </v-date-picker>
-                    </v-menu>
+                        ></v-datetime-picker>
                     </v-col>
                     <v-col
                         class="d-inline-flex pa-2"
@@ -261,37 +247,14 @@
                     sm="6"
                     md="4"
                     >
-                    <v-menu
-                        ref="menu2"
-                        v-model="menu2"
-                        :close-on-content-click="true"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                        @change="setSearchField(column.name)"
-                        @input="setSearchField(column.name)"
-                    >
-                        <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                            readonly                            
+                        
+                        <v-datetime-picker 
+                        placeholder="Search"                     
                             v-model="tableData.search2"
                             solo
-                            placeholder="Search"
                             @change="setSearchField(column.name)"
                             @input="setSearchField(column.name)"
-                            hide-details
-                            v-bind="attrs"
-                            v-on="on"
-                        ></v-text-field>
-                        </template>
-                        <v-date-picker
-                            v-model="tableData.search2"
-                            no-title
-                            scrollable
-                            @click="clickDataPicker(column.name)"
-                        >
-                        </v-date-picker>
-                    </v-menu>
+                        ></v-datetime-picker>
                     </v-col>
                     <v-col
                         class="d-inline-flex pa-2"
@@ -342,9 +305,11 @@
                 menu
             }
         },
+        created: function() {
+            
+        },
         methods: {
             setSearchField(searchField){
-                console.log(searchField)
                 this.$emit('setSearchField', {
                     field:searchField, 
                     search:this.tableData.search,
@@ -361,7 +326,12 @@
             },
             getUsers(){
                 this.$emit('getUsers')
-            }
+            },
+            handleFocusOut(evt,column){
+                if (!evt.currentTarget.contains(evt.relatedTarget)) {
+                    this.showFilterfield[column]=false;
+                }
+            },
         }
     }
 </script>

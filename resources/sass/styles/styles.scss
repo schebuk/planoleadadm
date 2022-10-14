@@ -1,17 +1,24 @@
 
   .table {
+    min-width: 100%;
+  }
+  .filterConteiner{
+    position: relative;
+    display: inline-block;
     width: 100%;
   }
-  .filterConteinertr{
-    height: 0;
-    position: relative;
-  }
-  .filterConteinertd{
+  .filterConteiner li{
       position: relative;
-      overflow: visible;
+      float: left;
+      display: inline-block;
+      list-style: none;
+      width: 1px;
+      height: 1px;
   }
-  .filterConteinertd:first-child .tableFilters:first-child{
-    left:0;
+  .filterConteiner li {
+    position: relative;
+    left: 0;
+    top: 45px;
   }
   .tableFilters{
     position: absolute;
