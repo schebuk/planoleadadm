@@ -153,7 +153,9 @@ class UsersController extends Controller
             'regraId' => $request->regraId,
             'status' => $request->status,
             'created_at' => date("Y-m-d H:i:s"),
-            'password' => bcrypt('123456')
+            'password' => bcrypt('123456'),
+            'trash' => 0,
+            'delete' => 0
         ]);
         if($user->save()){
             return response()->json([
