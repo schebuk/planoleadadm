@@ -11,7 +11,11 @@ class UsersController extends Controller
     public function index(Request $request)
     {
     	if ( $request->input('client') ) {
-    	    return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')->get();
+    	    return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
+            ->where('trash','=',0)
+            ->where('delete','=',0)
+            ->where('name','!=','admin')
+            ->get();
     	}
 
         $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
@@ -115,7 +119,119 @@ class UsersController extends Controller
             }
         }
 
-        $users = $query->paginate($length);
+        $users = $query
+            ->where('trash','=',0)
+            ->where('delete','=',0)
+            ->where('name','!=','admin')
+            ->paginate($length);
         return ['data' => $users, 'draw' => $request->input('draw')];
+    }
+    
+    public function getUserById(Request $request,$id)
+    {
+        return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
+            ->where('id','=',$id)
+            ->first();
+    }
+
+    public function save(Request $request)
+    {
+        /*$request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'telephone' => 'required|integer|min:10',
+            'user' => 'required|string',
+            'regraId' => 'required|integer',
+            'status' => 'boolean',
+        ]);*/
+  
+        $user = new User([
+            'name' => $request->name,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'user' => $request->user,
+            'regraId' => $request->regraId,
+            'status' => $request->status,
+            'created_at' => date("Y-m-d H:i:s"),
+            'password' => bcrypt('123456')
+        ]);
+        if($user->save()){
+            return response()->json([
+            'message' => 'Usuario cadastrado com sucesso'
+            ], 201);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+    }
+    
+    public function edit(Request $request)
+    {
+        /*$request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'telephone' => 'required|integer|min:10',
+            'user' => 'required|string',
+            'regraId' => 'required|integer',
+            'status' => 'boolean',
+        ]);*/
+        $user = User::where('id','=',$request->id)->first();
+          
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->telephone = $request->telephone;
+        $user->user = $request->user;
+        $user->regraId = $request->regraId;
+        $user->status = $request->status;
+        $user->updated_at = date("Y-m-d H:i:s");
+        
+        if($user->save()){
+            return response()->json([
+            'message' => 'Usuario editado com sucesso'
+            ], 201);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+    }
+    public function trash(Request $request, $id)
+    {
+        $user = User::where('id','=',$id)->first();
+          
+        $user->trash = 1;
+        
+        if($user->save()){
+            return response()->json([
+            'message' => 'Usuario mandado para lixeira com sucesso'
+            ], 201);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+    }
+    public function delete(Request $request, $id)
+    {
+        $user = User::where('id','=',$id)->first();
+          
+        $user->delete = 1;
+        
+        if($user->save()){
+            return response()->json([
+            'message' => 'Usuario mandado para lixeira com sucesso'
+            ], 201);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+    }
+    public function status(Request $request, $id, $status)
+    {
+        $user = User::where('id','=',$id)->first();
+          
+        $user->status = $status;
+        
+        if($user->save()){
+            return response()->json([
+            'message' => 'alterado status do Usuario com sucesso'
+            ], 201);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
     }
 }

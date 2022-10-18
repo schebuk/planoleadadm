@@ -313,9 +313,6 @@
                 menu
             }
         },
-        created: function() {
-            
-        },
         methods: {
             setSearchField(searchField){
                 this.$emit('setSearchField', {

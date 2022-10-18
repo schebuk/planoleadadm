@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\RulesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,4 +28,12 @@ Route::group(['middleware' => 'auth:api'], function() {
 });
 
 
-Route::get('users', [UsersController::class, 'index']);
+Route::get('users/', [UsersController::class, 'index']);
+Route::post('users/save/', [UsersController::class, 'save']);
+Route::post('users/edit/', [UsersController::class, 'edit']);
+Route::get('users/trash/{id}', [UsersController::class, 'trash']);
+Route::get('users/delete/{id}', [UsersController::class, 'delete']);
+Route::get('users/status/{id}/{status}', [UsersController::class, 'status']);
+Route::get('users/{id}', [UsersController::class, 'getUserById']);
+
+Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);

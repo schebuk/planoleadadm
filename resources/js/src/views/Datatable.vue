@@ -19,6 +19,7 @@
                             @click="$emit('showFilter', column.name)"
                         ></v-icon>
                 </th>
+                <th></th>
             </tr>
         </thead>
         <slot></slot>

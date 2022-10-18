@@ -23,8 +23,6 @@ instale e de update nas dependências do vue.js
 
     npm install
 
-    npm update
-
 copie o **.env.exemple** e renomeia pra **.env**
 
 no **.env** configure as variáveis de acesso ao banco de dados
