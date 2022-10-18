@@ -1,5 +1,21 @@
 <template>
   <div class="Users">
+    <v-snackbar
+      v-model="snackbar"
+    >
+      {{ toastText }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn
+          color="pink"
+          text
+          v-bind="attrs"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
     <div class="topButtons">
 
       <v-dialog
@@ -25,21 +41,32 @@
         <Form :fields="fields" modalname="usercad" type="create" @closemodal="closemodal" @save="save"></Form>
       </v-dialog>
       <v-btn
-      class="mx-2"
-      fab
-      dark
-      color="warning"
+        class="mx-2"
+        fab
+        dark
+        color="warning"
+        :loading="isSelecting" 
+        @click="handleFileImport"
       >        
         <v-icon 
           v-text="mdiCloudUpload" 
         ></v-icon>
       </v-btn>
+
+      <input 
+          ref="uploader" 
+          class="d-none" 
+          type="file" 
+          @change="onFileChanged"
+      >
       
       <v-btn
       class="mx-2"
       fab
       dark
       color="primary"
+      :loading="isSelectingExport" 
+      @click="exportUser"
       >        
         <v-icon 
           v-text="mdiFileDownload" 
@@ -300,6 +327,8 @@ export default {
         showFilterfield: showFilterfield,
         perPage: ['10', '50', '100'],
         searchFields,
+        snackbar:false,
+        toastText: '',
         tableData: {
           draw: 0,
           length: 10,
@@ -313,6 +342,9 @@ export default {
           dir: 'asc',
         },
         pagination:{},
+        isSelecting: false,
+        isSelectingExport:false,
+        selectedFile: null,
       }
     },
     methods: {
@@ -330,10 +362,11 @@ export default {
                 this.modal.deletedialog[user.id]= false
               })
               this.configPagination(data);
-              console.log(this.modal)
             }
           })
           .catch(errors => {
+              this.snackbar = true
+              this.toastText = errors
               console.log(errors);
           });
       },
@@ -402,19 +435,27 @@ export default {
           values['id'] = formfields.id
           axios.post('/api/users/edit', values)
           .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
             console.log(response)
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors.data.error
             console.log(errors)
           })
           
         }
         else{
           axios.post('/api/users/save', values)
-          .then(response => {
+          .then(response => {  
+            this.snackbar = true
+            this.toastText = response.data.message
             console.log(response)
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
             console.log(errors)
           })
         }
@@ -425,9 +466,13 @@ export default {
         status = status? 1:0
         axios.get('/api/users/status/'+id+'/'+status)
           .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
             console.log(response)
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
             console.log(errors)
           })
         this.getUsers()
@@ -435,9 +480,13 @@ export default {
       trash(id){
         axios.get('/api/users/trash/'+id)
           .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
             console.log(response)
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors.data.error
             console.log(errors)
           })
         this.fechadialogo('trashdialog',id)
@@ -446,9 +495,13 @@ export default {
       deleteregister(id){
         axios.get('/api/users/delete/'+id)
           .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
             console.log(response)
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
             console.log(errors)
           })
         this.fechadialogo('deletedialog',id)
@@ -460,6 +513,56 @@ export default {
       fechadialogo(modal,id){
         this.$set(this.modal[modal],id , false) 
       },
+      handleFileImport() {
+        this.isSelecting = true;
+
+        // After obtaining the focus when closing the FilePicker, return the button state to normal
+        window.addEventListener('focus', () => {
+            this.isSelecting = false
+        }, { once: true });
+        
+        // Trigger click on the FileInput
+        this.$refs.uploader.click();
+      },
+      onFileChanged(e) {
+        const formData = new FormData();
+        const file = e.target.files[0];
+        formData.append('file', file);
+        axios.post('/api/users/import', formData)
+          .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
+            console.log(response)
+            this.getUsers()
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(error)
+          });
+          
+      },
+      exportUser(){
+        this.isSelectingExport = true;
+        axios.post('/api/users/export',{responseType: 'arraybuffer'})
+          .then(response => {
+                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                var fileLink = document.createElement('a');
+                fileLink.href = fileURL;
+                fileLink.setAttribute('download', 'users.csv');
+                document.body.appendChild(fileLink);
+                fileLink.click();
+                
+                this.isSelectingExport = false;
+            
+                console.log(response)
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+      }
     }
 };
   </script>

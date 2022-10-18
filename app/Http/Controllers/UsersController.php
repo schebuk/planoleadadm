@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Exports\UsersExport;
+use App\Imports\UsersImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\User;
 
@@ -10,19 +13,11 @@ class UsersController extends Controller
 {
     public function index(Request $request)
     {
-    	if ( $request->input('client') ) {
-    	    return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
-            ->where('trash','=',0)
-            ->where('delete','=',0)
-            ->where('name','!=','admin')
-            ->get();
-    	}
-
         $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
-        $dir = $request->input('dir');
+        $dir = $request->input('dir') == 0? $request->input('dir'):'DESC';
         $searchValue = $request->input('search');
         $searchField = $request->input('searchField');
         $searchValue2 = $request->input('search2');
@@ -135,16 +130,7 @@ class UsersController extends Controller
     }
 
     public function save(Request $request)
-    {
-        /*$request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'telephone' => 'required|integer|min:10',
-            'user' => 'required|string',
-            'regraId' => 'required|integer',
-            'status' => 'boolean',
-        ]);*/
-  
+    {  
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
@@ -153,13 +139,14 @@ class UsersController extends Controller
             'regraId' => $request->regraId,
             'status' => $request->status,
             'created_at' => date("Y-m-d H:i:s"),
+            'updated_at' => date("Y-m-d H:i:s"),
             'password' => bcrypt('123456'),
             'trash' => 0,
             'delete' => 0
         ]);
         if($user->save()){
             return response()->json([
-            'message' => 'Usuario cadastrado com sucesso'
+            'message' => 'Usuario editado com sucesso'
             ], 201);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -199,6 +186,7 @@ class UsersController extends Controller
         $user = User::where('id','=',$id)->first();
           
         $user->trash = 1;
+        $user->updated_at = date("Y-m-d H:i:s");
         
         if($user->save()){
             return response()->json([
@@ -213,10 +201,11 @@ class UsersController extends Controller
         $user = User::where('id','=',$id)->first();
           
         $user->delete = 1;
+        $user->updated_at = date("Y-m-d H:i:s");
         
         if($user->save()){
             return response()->json([
-            'message' => 'Usuario mandado para lixeira com sucesso'
+            'message' => 'Usuario deletado com sucesso'
             ], 201);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -227,6 +216,7 @@ class UsersController extends Controller
         $user = User::where('id','=',$id)->first();
           
         $user->status = $status;
+        $user->updated_at = date("Y-m-d H:i:s");
         
         if($user->save()){
             return response()->json([
@@ -235,5 +225,21 @@ class UsersController extends Controller
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
+    }
+    public function import(Request $request) 
+    {
+        $validatedData = $request->validate([
+           'file' => 'required',
+        ]);
+        Excel::import(new UsersImport,$request->file('file'));
+           
+        
+        return response()->json([
+            'message' => 'importado com sucesso'
+            ], 201);
+    }
+    public function export() 
+    {
+        return Excel::download(new UsersExport, 'users.csv');
     }
 }

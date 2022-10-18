@@ -34,6 +34,8 @@ Route::post('users/edit/', [UsersController::class, 'edit']);
 Route::get('users/trash/{id}', [UsersController::class, 'trash']);
 Route::get('users/delete/{id}', [UsersController::class, 'delete']);
 Route::get('users/status/{id}/{status}', [UsersController::class, 'status']);
+Route::post('users/import/', [UsersController::class, 'import']);
+Route::post('users/export/', [UsersController::class, 'export']);
 Route::get('users/{id}', [UsersController::class, 'getUserById']);
 
 Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);

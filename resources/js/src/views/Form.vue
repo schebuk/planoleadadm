@@ -101,7 +101,7 @@
               .then(response => {
                 this.fields.forEach((field) => {                  
                   this.$set(formreturn, field.name, response.data[field.name]) 
-                })     
+                })    
               })
               .catch((err) => {
                 console.log(err)
@@ -129,8 +129,11 @@
             }
             this.fields.forEach((field) => {
               switch (field.type){
-                case 'related':                
+                case 'related':              
                   fieldvalues[field.name] = this.formreturn[field.name].id
+                  if (!this.formreturn[field.name].id){
+                    fieldvalues[field.name] = this.formreturn[field.name]
+                  }
                   break
                 default:
                   fieldvalues[field.name] = this.formreturn[field.name]
