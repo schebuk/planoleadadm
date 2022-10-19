@@ -147,7 +147,7 @@ class UsersController extends Controller
         if($user->save()){
             return response()->json([
             'message' => 'Usuario editado com sucesso'
-            ], 201);
+            ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
@@ -176,7 +176,7 @@ class UsersController extends Controller
         if($user->save()){
             return response()->json([
             'message' => 'Usuario editado com sucesso'
-            ], 201);
+            ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
@@ -191,7 +191,7 @@ class UsersController extends Controller
         if($user->save()){
             return response()->json([
             'message' => 'Usuario mandado para lixeira com sucesso'
-            ], 201);
+            ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
@@ -206,7 +206,7 @@ class UsersController extends Controller
         if($user->save()){
             return response()->json([
             'message' => 'Usuario deletado com sucesso'
-            ], 201);
+            ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
@@ -221,7 +221,7 @@ class UsersController extends Controller
         if($user->save()){
             return response()->json([
             'message' => 'alterado status do Usuario com sucesso'
-            ], 201);
+            ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
         }
@@ -236,10 +236,76 @@ class UsersController extends Controller
         
         return response()->json([
             'message' => 'importado com sucesso'
-            ], 201);
+            ], 200);
     }
-    public function export() 
+    public function export(Request $request) 
     {
         return Excel::download(new UsersExport, 'users.csv');
+    }
+    public function getTrash(Request $request) 
+    {
+        $users = User::select('id', 'name', 'email', 'user', 'telephone')
+                    ->where('trash','=',1)
+                    ->orderBy('id', 'desc')
+                    ->get();
+        return $users;
+    }
+    public function massEdit(Request $request){
+        $ids = explode(',',$request->ids);
+        $update = [];
+        if ($request->regraId){
+            $update["regraId"] = $request->regraId;
+        }
+        if ($request->status != ''){
+            $update["status"] = $request->status;
+        }
+        
+        $update["updated_at"] = date("Y-m-d H:i:s");
+        $users = User::whereIn('id',$ids)
+            ->update($update);
+        
+        if($users){
+            return response()->json([
+            'message' => count($ids).' Registros editados com sucesso'
+            ], 200);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+
+        
+    }
+    public function massTrash(Request $request){
+        $ids = explode(',',$request->ids);
+        $users = User::whereIn('id',$ids)
+            ->update([
+                'trash'=>1,
+                'updated_at' => date("Y-m-d H:i:s")
+            ]);
+                    
+        if($users){
+            return response()->json([
+            'message' => count($ids).' Registros mandados para lixeira com sucesso'
+            ], 200);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+        
+    }
+    public function massDelete(Request $request){
+        $ids = explode(',',$request->ids);
+        $users = User::whereIn('id',$ids)
+            ->update([
+                'delete'=>1,
+                'updated_at' => date("Y-m-d H:i:s")
+            ]);
+                    
+        if($users){
+            return response()->json([
+            'message' => count($ids).' Registros deletados com sucesso'
+            ], 200);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+        
     }
 }

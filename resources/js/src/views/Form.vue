@@ -1,7 +1,7 @@
 <template>
     <v-card>
         <v-card-title>
-          <span class="text-h5">Add User</span>
+          <span class="text-h5">{{ title }}</span>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -81,7 +81,7 @@
     } from '@mdi/js'
     export default{
         emits: ['closemodal','save'],
-        props:['fields','modalname','registerId','type','url'],
+        props:['fields','modalname','registerId','type','url','title'],
         setup() {
             return {
                 mdiFilter,

@@ -25,10 +25,10 @@ class UsersImport implements ToModel, WithHeadingRow
             "updated_at" => date("Y-m-d H:i:s"),
             "user" => $row['user'],
             "telephone" => $row['telephone'],
-            "regraId" => $row["regraid"],
+            "regraId" => $row['regraid'],
             "status" => $row['status'],
             "trash" => 0,
-            "delete" => 0,
+            "deleted" => 0,
         ]);
     }
 }

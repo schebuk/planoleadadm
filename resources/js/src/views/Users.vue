@@ -4,7 +4,6 @@
       v-model="snackbar"
     >
       {{ toastText }}
-
       <template v-slot:action="{ attrs }">
         <v-btn
           color="pink"
@@ -16,8 +15,14 @@
         </v-btn>
       </template>
     </v-snackbar>
+    
+    <v-dialog
+      v-model="modal.bulkedit"
+      max-width="800px"
+    >   
+      <Form :fields="bulkFields" modalname="bulkedit" title="Bulk edit" type="create" @closemodal="closemodal" @save="saveBulk"></Form>
+    </v-dialog>
     <div class="topButtons">
-
       <v-dialog
         v-model="modal.usercad"
         max-width="800px"
@@ -31,14 +36,13 @@
             v-bind="attrs"
             v-on="on"
           >        
-          <v-icon 
-            v-text="mdiPlusThick" 
-          ></v-icon>
-             
+            <v-icon 
+              v-text="mdiPlusThick" 
+            >
+            </v-icon>             
           </v-btn>
-        </template>
-      
-        <Form :fields="fields" modalname="usercad" type="create" @closemodal="closemodal" @save="save"></Form>
+        </template>      
+        <Form :fields="fields" modalname="usercad" title="Add User" type="create" @closemodal="closemodal" @save="save"></Form>
       </v-dialog>
       <v-btn
         class="mx-2"
@@ -52,14 +56,12 @@
           v-text="mdiCloudUpload" 
         ></v-icon>
       </v-btn>
-
       <input 
           ref="uploader" 
           class="d-none" 
           type="file" 
           @change="onFileChanged"
       >
-      
       <v-btn
       class="mx-2"
       fab
@@ -72,16 +74,51 @@
           v-text="mdiFileDownload" 
         ></v-icon>
       </v-btn>
+      
+      <v-dialog
+        v-model="modal.trash"
+        max-width="800px"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            class="mx-2"
+            fab
+            dark
+            color="#6e7b8b"
+            v-bind="attrs"
+            v-on="on"
+          >     
+          <v-badge
+            color="#ff0000"
+            :content="trashCount"
+            :v-if="trashCount > 0"
+          >   
+            <v-icon 
+              v-text="mdiTrashCan" 
+            ></v-icon> 
+            
+        </v-badge> 
+                         
+          </v-btn>
+          
+        </template>      
+        <TrashTable :trashData="trashData" :trashFields="trashFields" modalname="trash" @closemodal="closemodal" @save="save"></TrashTable>
+      </v-dialog>
     </div>
     <ul class="filterConteiner">
       <li v-for="column in columns" :style="'width:'+column.width">
         <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
       </li>
     </ul>
-    <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" @sort="sortBy" @showFilter="showFilter">
+    <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" :allSelelected="allSelelected" @sort="sortBy" @showFilter="showFilter" @selectAll="selectAll">
         <tbody>
           <tr v-for="user in Users" :key="user.id">
-            <td>{{user.name}} 
+            <td>
+              <v-checkbox
+                v-model="massSelelection[user.id]"
+              ></v-checkbox>
+            </td>
+            <td>{{user.name}}</td>
             <td>{{user.email}}</td>
             <td>{{user.telephone}}</td>
             <td>{{user.user}}</td>
@@ -113,7 +150,7 @@
                   </v-btn>
                 </template>
                 
-                <Form :fields="fields" :registerId="user.id" type="edit" :modalname="'useredit_'+user.id" url="api/users/" @closemodal="closemodal" @save="save"></Form>
+                <Form :fields="fields" :registerId="user.id" type="edit" title="Edit User" :modalname="'useredit_'+user.id" url="api/users/" @closemodal="closemodal" @save="save"></Form>
               </v-dialog>
 
               <v-btn
@@ -213,6 +250,19 @@
           >  
             <v-select 
               width="30"
+              v-model="bulkActionType" 
+              label="Bulk Action"
+              @change="bulkAction()" 
+              :items="bulkActionItens"
+            ></v-select>
+          </v-col>
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="1"
+            sm="1"
+          >  
+            <v-select 
+              width="30"
               v-model="tableData.length" 
               label="Register per page"
               @change="getUsers()" 
@@ -222,8 +272,8 @@
           
           <v-col
             class="d-inline-flex pa-2"
-            cols="10"
-            sm="10"
+            cols="9"
+            sm="9"
             align-self="center"
           >  
             <Pagination 
@@ -251,6 +301,7 @@
 import Datatable from './Datatable.vue';
 import TableFilter from './TableFIlter.vue';
 import Form from './Form.vue';
+import TrashTable from './Trash.vue';
 import LaravelVuePagination from 'laravel-vue-pagination';
 
 import {
@@ -268,6 +319,7 @@ export default {
       datatable: Datatable, 
       TableFilter:TableFilter,
       Form:Form,
+      TrashTable:TrashTable,
       'Pagination': LaravelVuePagination 
     },
     created() {
@@ -294,6 +346,8 @@ export default {
         useredit:[],
         trashdialog:[],
         deletedialog:[],
+        bulkedit:false,
+        trash:false,
       };
       let columns = [
           {width: '14%', label: 'name', name: 'name',type:'string' },
@@ -313,6 +367,16 @@ export default {
         {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
       ]
+      let trashFields = [
+        {name:'name', type:'text'},
+        {name:'email', type:'text'},
+        {name:'telephone', type:'number'},
+        {name:'user', type:'text'},
+      ]
+      let bulkFields = [
+        {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
+        {name:'status', type:'bool'},
+      ]
       columns.forEach((column) => {
           sortOrders[column.name] = 0;
           showFilterfield[column.name] = false;
@@ -321,6 +385,7 @@ export default {
         Users: [],
         columns: columns,
         fields:fields,
+        bulkFields:bulkFields,
         modal:modal,
         sortKey: 'id',
         sortOrders: sortOrders,
@@ -345,6 +410,15 @@ export default {
         isSelecting: false,
         isSelectingExport:false,
         selectedFile: null,
+        massSelelection: [],
+        selelectionIds: [],
+        allSelelected: false,
+        trashData:[],
+        trashCount:0,
+        bulkActionItens:['---','Edit','Trash','Delete'],
+        bulkActionType:'',
+        selectedIds: [],
+        trashFields: trashFields,
       }
     },
     methods: {
@@ -353,15 +427,27 @@ export default {
         axios.get(url + page, {params: this.tableData})
           .then(response => {
             let data = response.data;
+            let countRegisters = 0
             if (this.tableData.draw == data.draw) {
               this.Users = data.data.data;
+              this.allSelelected = false
               this.Users.forEach((user, index) =>{
                 this.Users[index].status = user.status == 0 ? false : true 
                 this.modal.useredit[user.id] = false
                 this.modal.trashdialog[user.id]= false
                 this.modal.deletedialog[user.id]= false
+                if(!this.massSelelection[user.id]){
+                  this.massSelelection[user.id] = false
+                }
+                else{
+                  countRegisters++
+                }
               })
-              this.configPagination(data);
+              if (countRegisters == this.tableData.length){
+                this.allSelelected = true
+              }
+              this.configPagination(data)
+              this.getTrash()
             }
           })
           .catch(errors => {
@@ -462,6 +548,35 @@ export default {
         this.modal[modalname]=false;
         this.getUsers()
       },
+      saveBulk(formfields,modalname){  
+        console.log(formfields) 
+        var bodyFormData = new FormData()
+        bodyFormData.append('ids', this.selectedIds); 
+        if (formfields.regraId) {
+          bodyFormData.append('regraId', formfields.regraId); 
+        }
+        if (formfields.status != null) {
+          bodyFormData.append('status', formfields.status); 
+        }
+        axios.post('/api/users/edit/multiple', bodyFormData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        .then(response => {
+          this.snackbar = true
+          this.toastText = response.data.message
+          console.log(response)
+        })
+        .catch(errors => {
+          this.snackbar = true
+          this.toastText = errors.data.error
+          console.log(errors)
+        })          
+        this.modal[modalname]=false;
+        this.bulkActionType = '---'
+        this.getUsers()
+      },
       changestatus(status,id){
         status = status? 1:0
         axios.get('/api/users/status/'+id+'/'+status)
@@ -554,14 +669,83 @@ export default {
                 fileLink.click();
                 
                 this.isSelectingExport = false;
-            
-                console.log(response)
           })
           .catch(errors => {
             this.snackbar = true
             this.toastText = errors
             console.log(errors)
           });
+      },
+      selectAll(){
+        this.allSelelected = !this.allSelelected 
+        this.Users.forEach((user) =>{
+          this.massSelelection[user.id] = this.allSelelected
+        })
+        console.log(this.massSelelection)
+      },
+      getTrash(){
+        axios.post('api/users/gettrash/')
+          .then(response => {
+            this.trashData = response.data
+            this.trashCount = response.data.length
+          })
+          .catch(errors => {
+            console.log(errors)
+          });
+      },
+      bulkAction(){
+        this.massSelelection.forEach((value, index) => {
+          if (value){
+            this.selectedIds.push(index)
+          }
+          this.massSelelection[index] = false
+        })
+        console.log(this.selectedIds)
+        var bodyFormData = new FormData()
+        bodyFormData.append('ids', this.selectedIds); 
+
+        switch (this.bulkActionType){
+          
+          case 'Edit':
+            this.modal.bulkedit = true
+            break
+          case 'Trash':
+            axios.post('api/users/trash/multiple', bodyFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+              .then(response => {
+                this.trashData = response.data
+                this.trashCount = response.data.length
+                this.snackbar = true
+                this.toastText = response.data.message
+                console.log(response)
+              })
+              .catch(errors => {
+                console.log(errors)
+              });
+            break
+          case 'Delete':
+            axios.post('api/users/delete/multiple', bodyFormData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            })
+              .then(response => {
+                this.trashData = response.data
+                this.trashCount = response.data.length
+                this.snackbar = true
+                this.toastText = response.data.message
+                console.log(response)
+              })
+              .catch(errors => {
+                console.log(errors)
+              });
+            break
+        }
+        this.bulkActionType = '---'
+        this.getUsers()
       }
     }
 };

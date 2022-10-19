@@ -30,12 +30,16 @@ Route::group(['middleware' => 'auth:api'], function() {
 
 Route::get('users/', [UsersController::class, 'index']);
 Route::post('users/save/', [UsersController::class, 'save']);
+Route::post('users/edit/multiple/', [UsersController::class, 'massEdit']);
+Route::post('users/trash/multiple/', [UsersController::class, 'massTrash']);
+Route::post('users/delete/multiple/', [UsersController::class, 'massDelete']);
 Route::post('users/edit/', [UsersController::class, 'edit']);
 Route::get('users/trash/{id}', [UsersController::class, 'trash']);
 Route::get('users/delete/{id}', [UsersController::class, 'delete']);
 Route::get('users/status/{id}/{status}', [UsersController::class, 'status']);
 Route::post('users/import/', [UsersController::class, 'import']);
 Route::post('users/export/', [UsersController::class, 'export']);
+Route::get('users/gettrash/', [UsersController::class, 'getTrash']);
 Route::get('users/{id}', [UsersController::class, 'getUserById']);
 
 Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);
