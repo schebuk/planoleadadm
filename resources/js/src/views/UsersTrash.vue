@@ -16,6 +16,67 @@
       </template>
     </v-snackbar>
     
+    <v-dialog
+    v-model="modal.bulkrestore"
+    max-width="290"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          Restaurar registros?
+        </v-card-title>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="danger"
+            text
+            @click="closemodal('bulkrestore')"
+          >
+            Não
+          </v-btn>
+
+          <v-btn
+            color="success"
+            text
+            @click="restoreBulkRegister()"
+          >
+            Sim
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+    v-model="modal.bulkdelete"
+    max-width="290"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          deletar registros permanentemente?
+        </v-card-title>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="danger"
+            text
+            @click="closemodal('bulkdelete')"
+          >
+            Não
+          </v-btn>
+
+          <v-btn
+            color="success"
+            text
+            @click="deleteBulkRegister()"
+          >
+            Sim
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-row>
       <v-col>  
         <v-btn
@@ -147,8 +208,6 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
-
-              
               <v-btn
                 icon 
                 color="#CCA01D"
@@ -278,6 +337,8 @@ export default {
       let modal = {
         restoredialog:[],
         deletedialog:[],
+        bulkrestore:false,
+        bulkdelete:false,
       };
       let columns = [
           {width: '14%', label: 'name', name: 'name',type:'string' },
@@ -453,6 +514,17 @@ export default {
         console.log(this.massSelelection)
       },
       bulkAction(){
+        switch (this.bulkActionType){
+          case 'restore':
+            this.modal.bulkrestore = true
+            break
+          case 'delete':
+            this.modal.bulkdelete = true
+            break    
+        }        
+      },
+      restoreBulkRegister(){
+        
         this.massSelelection.forEach((value, index) => {
           if (value){
             this.selectedIds.push(index)
@@ -461,42 +533,55 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        switch (this.bulkActionType){
-          case 'restore':
-            axios.post('/api/users/restore/multiple', bodyFormData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-              .then(response => {
-                this.snackbar = true
-                this.toastText = response.data.message
-                console.log(response)
-              })
-              .catch(errors => {
-                this.snackbar = true
-                this.toastText = errors
-                console.log(errors)
-              });
-            break
-          case 'delete':
-            axios.post('/api/users/delete/multiple', bodyFormData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-              .then(response => {
-                this.snackbar = true
-                this.toastText = response.data.message
-                console.log(response)
-              })
-              .catch(errors => {
-                this.snackbar = true
-                this.toastText = errors
-                console.log(errors)
-              });
-            break
-        }
+        axios.post('/api/users/restore/multiple', bodyFormData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+          .then(response => {
+            this.trashData = response.data
+            this.trashCount = response.data.length
+            this.snackbar = true
+            this.toastText = response.data.message
+            console.log(response)
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+        this.selectedIds = []
+        this.modal.bulkrestore = false
+        this.bulkActionType = 'default'
+        this.getUsers()
+
+      },
+      deleteBulkRegister(){
+        this.massSelelection.forEach((value, index) => {
+          if (value){
+            this.selectedIds.push(index)
+          }
+          this.massSelelection[index] = false
+        })
+        var bodyFormData = new FormData()
+        bodyFormData.append('ids', this.selectedIds); 
+        axios.post('/api/users/delete/multiple', bodyFormData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+          .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
+            console.log(response)
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+        this.selectedIds = []
+        this.modal.bulkdelete = false
         this.bulkActionType = 'default'
         this.getUsers()
       }

@@ -22,6 +22,67 @@
     >   
       <Form :fields="bulkFields" modalname="bulkedit" title="Bulk edit" type="create" @closemodal="closemodal" @save="saveBulk"></Form>
     </v-dialog>
+    <v-dialog
+    v-model="modal.bulktrash"
+    max-width="290"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          mandar registros para lixeira?
+        </v-card-title>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="danger"
+            text
+            @click="closemodal('bulktrash')"
+          >
+            Não
+          </v-btn>
+
+          <v-btn
+            color="success"
+            text
+            @click="trashBulkRegister()"
+          >
+            Sim
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog
+    v-model="modal.bulkdelete"
+    max-width="290"
+    >
+      <v-card>
+        <v-card-title class="text-h5">
+          deletar registros permanentemente?
+        </v-card-title>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+
+          <v-btn
+            color="danger"
+            text
+            @click="closemodal('bulkdelete')"
+          >
+            Não
+          </v-btn>
+
+          <v-btn
+            color="success"
+            text
+            @click="deleteBulkRegister()"
+          >
+            Sim
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <div class="topButtons">
       <v-dialog
         v-model="modal.usercad"
@@ -400,6 +461,8 @@ export default {
         deletedialog:[],
         bulkedit:false,
         trash:false,
+        bulktrash:false,
+        bulkdelete:false,
       };
       let columns = [
           {width: '14%', label: 'name', name: 'name',type:'string' },
@@ -772,6 +835,20 @@ export default {
           });
       },
       bulkAction(){
+        switch (this.bulkActionType){
+          case 'edit':
+            this.modal.bulkedit = true
+            break
+          case 'trash':
+            this.modal.bulktrash = true
+            break
+          case 'delete':
+            this.modal.bulkdelete = true
+            break    
+        }        
+      },
+      trashBulkRegister(){
+        
         this.massSelelection.forEach((value, index) => {
           if (value){
             this.selectedIds.push(index)
@@ -780,50 +857,55 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        switch (this.bulkActionType){
-          
-          case 'edit':
-            this.modal.bulkedit = true
-            break
-          case 'trash':
-            axios.post('/api/users/trash/multiple', bodyFormData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-              .then(response => {
-                this.trashData = response.data
-                this.trashCount = response.data.length
-                this.snackbar = true
-                this.toastText = response.data.message
-                console.log(response)
-              })
-              .catch(errors => {
-                this.snackbar = true
-                this.toastText = errors
-                console.log(errors)
-              });
-            break
-          case 'delete':
-            axios.post('/api/users/delete/multiple', bodyFormData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            })
-              .then(response => {
-                this.trashData = response.data
-                this.trashCount = response.data.length
-                this.snackbar = true
-                this.toastText = response.data.message
-                console.log(response)
-              })
-              .catch(errors => {
-                this.snackbar = true
-                this.toastText = errors
-                console.log(errors)
-              });
-            break
-        }
+        axios.post('/api/users/trash/multiple', bodyFormData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+          .then(response => {
+            this.trashData = response.data
+            this.trashCount = response.data.length
+            this.snackbar = true
+            this.toastText = response.data.message
+            console.log(response)
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+        this.selectedIds = []
+        this.modal.bulktrash = false
+        this.bulkActionType = 'default'
+        this.getUsers()
+
+      },
+      deleteBulkRegister(){
+        this.massSelelection.forEach((value, index) => {
+          if (value){
+            this.selectedIds.push(index)
+          }
+          this.massSelelection[index] = false
+        })
+        var bodyFormData = new FormData()
+        bodyFormData.append('ids', this.selectedIds); 
+        axios.post('/api/users/delete/multiple', bodyFormData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+          .then(response => {
+            this.snackbar = true
+            this.toastText = response.data.message
+            console.log(response)
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+        this.selectedIds = []
+        this.modal.bulkdelete = false
         this.bulkActionType = 'default'
         this.getUsers()
       }
