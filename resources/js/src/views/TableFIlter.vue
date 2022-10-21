@@ -201,7 +201,8 @@
     <div v-else-if="column.type == 'date'">
         <div class="tableFilters" v-if="showFilterfield[column.name]" 
         :id="'filterdiv'+[column.name]"
-        tabindex="0">
+        tabindex="0"
+        @focusout="handleFocusOut($event,column.name)">
             <v-container class="grey lighten-5">
                 <v-row no-gutters>      
                     <h3>Filter by {{column.name}}</h3>
@@ -215,11 +216,18 @@
                     >
                     <v-datetime-picker 
                         placeholder="Search"                     
-                            v-model="tableData.search"
-                            solo
-                            @change="setSearchField(column.name)"
-                            @input="setSearchField(column.name)"
-                        ></v-datetime-picker>
+                        v-model="tableData.search"
+                        solo
+                        :date-picker-props="dateProps"
+                        :time-picker-props="timeProps"
+                        time-format="HH:mm"
+                        no-title
+                        :disabledDates="disabledDates"
+                        dateIcon="mdiCalendarRange"
+                        timeIcon="mdiClockOutline "
+                        @change="setSearchField(column.name)"
+                        @input="setSearchField(column.name)"
+                    ></v-datetime-picker>
                     </v-col>
                     <v-col
                         class="d-inline-flex pa-2"
@@ -260,6 +268,13 @@
                         placeholder="Search"                     
                             v-model="tableData.search2"
                             solo
+                            :date-picker-props="dateProps"
+                            :time-picker-props="timeProps"
+                            time-format="HH:mm"
+                            no-title
+                            :disabledDates="disabledDates"
+                            dateIcon="mdiCalendarRange"
+                            timeIcon="mdiClockOutline "
                             @change="setSearchField(column.name)"
                             @input="setSearchField(column.name)"
                         ></v-datetime-picker>
@@ -286,12 +301,16 @@
 
 <script>
 
+    import {
+            mdiCalendarRange,
+            mdiClockOutline,
+        } from '@mdi/js'
     export default {
         emits: ['setSearchField','getUsers'],
         props: ['showFilterfield','column','tableData'],
         data() {
             let searchTypeItensString = ['contains','start','end','equal','notequal','greater','greaterequal','lesser','lesserequal'];
-            let searchTypeItensData = ['equal','notequal','greater','greaterequal','lesser','lesserequal'];
+            let searchTypeItensData = ['greater','greaterequal','lesser','lesserequal'];
             let searchTypeItensNumber = ['contains','start','end','equal','notequal','greater','greaterequal','lesser','lesserequal'];
             let searchTypeItensBool = ['equal'];
             let searchOperator = ['AND','OR']
@@ -310,7 +329,24 @@
                 searchTypeItensNumber,
                 searchTypeItensBool,
                 searchOperator,
-                menu
+                mdiCalendarRange,
+                mdiClockOutline,
+                menu,
+                isShown: false,
+                date_start: null,
+                date_end: null,
+                textFieldProps: {
+                    prependIcon: "event"
+                },
+                dateProps: {
+                    headerColor: "blue"
+                },
+                timeProps: {
+                    format: "24hr"
+                },
+                disabledDates: {
+                    from: new Date()
+                }
             }
         },
         methods: {
@@ -325,7 +361,6 @@
                 })
             },
             clickDataPicker(column){
-                console.log(123)
                 this.menu = false; 
                 setSearchField(column);
             },
@@ -334,7 +369,14 @@
             },
             handleFocusOut(evt,column){
                 if (!evt.currentTarget.contains(evt.relatedTarget)) {
-                    this.showFilterfield[column]=false;
+                    if(evt.relatedTarget){
+                        if (!evt.relatedTarget.classList.contains('v-dialog')){
+                            this.showFilterfield[column]=false;
+                        }
+                    }
+                    else{
+                        this.showFilterfield[column]=false;
+                    }
                 }
             },
         }

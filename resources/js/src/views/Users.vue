@@ -56,6 +56,24 @@
           v-text="mdiCloudUpload" 
         ></v-icon>
       </v-btn>
+      
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        color="#a1d4cf"
+        :loading="isSelectingTemplateExport" 
+        @click="exportUserTemplate"
+      >     
+        <v-badge
+          color="#ff0000"
+          content="Ex"
+        >     
+            <v-icon 
+              v-text="mdiCloudUpload" 
+            ></v-icon>
+        </v-badge>
+      </v-btn>
       <input 
           ref="uploader" 
           class="d-none" 
@@ -91,7 +109,6 @@
           <v-badge
             color="#ff0000"
             :content="trashCount"
-            :v-if="trashCount > 0"
           >   
             <v-icon 
               v-text="mdiTrashCan" 
@@ -104,6 +121,63 @@
         </template>      
         <TrashTable :trashData="trashData" :trashFields="trashFields" modalname="trash" @closemodal="closemodal" @save="save"></TrashTable>
       </v-dialog>
+    </div>
+    
+    <div class="control">
+      <div class="select">
+        <v-row>
+          
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="2"
+            sm="2"
+          >  
+            <v-select 
+              width="30"
+              v-model="bulkActionType" 
+              label="Bulk Action"
+              @change="bulkAction()" 
+              :items="bulkActionItens"
+              item-text="text"
+              item-value="action"
+            ></v-select>
+          </v-col>
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="1"
+            sm="1"
+          >  
+            <v-select 
+              width="30"
+              v-model="tableData.length" 
+              label="Register per page"
+              @change="getUsers()" 
+              :items="perPage"
+            ></v-select>
+          </v-col>
+          
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="9"
+            sm="9"
+            align-self="center"
+          >  
+            <Pagination 
+              :data="pagination.data" 
+              @pagination-change-page="getUsers" 
+              :limit="3"
+              :show-disabled="true"
+            >
+              <template #prev-nav>
+                  <span>&lt;&lt; </span>
+              </template>
+              <template #next-nav>
+                  <span>&gt;&gt;</span>
+              </template>
+            </Pagination>
+          </v-col>
+        </v-row>
+      </div>
     </div>
     <ul class="filterConteiner">
       <li v-for="column in columns" :style="'width:'+column.width">
@@ -254,26 +328,15 @@
               label="Bulk Action"
               @change="bulkAction()" 
               :items="bulkActionItens"
-            ></v-select>
-          </v-col>
-          <v-col
-            class="d-inline-flex pa-2"
-            cols="1"
-            sm="1"
-          >  
-            <v-select 
-              width="30"
-              v-model="tableData.length" 
-              label="Register per page"
-              @change="getUsers()" 
-              :items="perPage"
+              item-text="text"
+              item-value="action"
             ></v-select>
           </v-col>
           
           <v-col
             class="d-inline-flex pa-2"
-            cols="9"
-            sm="9"
+            cols="10"
+            sm="10"
             align-self="center"
           >  
             <Pagination 
@@ -377,6 +440,12 @@ export default {
         {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
       ]
+      
+      let bulkActionItens = [{action:'default',text:'-----'},
+        {action:'edit',text:'Editar'},
+        {action:'trash',text:'Mandar para Lixeira'},
+        {action:'delete',text:'Deletar Permanentemente'}
+      ]
       columns.forEach((column) => {
           sortOrders[column.name] = 0;
           showFilterfield[column.name] = false;
@@ -409,13 +478,14 @@ export default {
         pagination:{},
         isSelecting: false,
         isSelectingExport:false,
+        isSelectingTemplateExport:false,        
         selectedFile: null,
         massSelelection: [],
         selelectionIds: [],
         allSelelected: false,
         trashData:[],
         trashCount:0,
-        bulkActionItens:['---','Edit','Trash','Delete'],
+        bulkActionItens:bulkActionItens,
         bulkActionType:'',
         selectedIds: [],
         trashFields: trashFields,
@@ -492,8 +562,6 @@ export default {
           this.showFilterfield[key] = !this.showFilterfield[key];
           this.$nextTick(() => {
             let divfilter = "#filterdiv"+key
-            console.log(divfilter)
-            console.log(this.$el.querySelector(divfilter))
             this.$el.querySelector(divfilter).focus()
           },1);
       },
@@ -676,6 +744,25 @@ export default {
             console.log(errors)
           });
       },
+      exportUserTemplate(){
+        this.isSelectingTemplateExport = true;
+        axios.post('/api/users/export/template',{responseType: 'arraybuffer'})
+          .then(response => {
+                var fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                var fileLink = document.createElement('a');
+                fileLink.href = fileURL;
+                fileLink.setAttribute('download', 'userstemplate.csv');
+                document.body.appendChild(fileLink);
+                fileLink.click();
+                
+                this.isSelectingTemplateExport = false;
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          });
+      },
       selectAll(){
         this.allSelelected = !this.allSelelected 
         this.Users.forEach((user) =>{
@@ -690,6 +777,8 @@ export default {
             this.trashCount = response.data.length
           })
           .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
             console.log(errors)
           });
       },
@@ -700,16 +789,14 @@ export default {
           }
           this.massSelelection[index] = false
         })
-        console.log(this.selectedIds)
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-
         switch (this.bulkActionType){
           
-          case 'Edit':
+          case 'edit':
             this.modal.bulkedit = true
             break
-          case 'Trash':
+          case 'trash':
             axios.post('api/users/trash/multiple', bodyFormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -723,10 +810,12 @@ export default {
                 console.log(response)
               })
               .catch(errors => {
+                this.snackbar = true
+                this.toastText = errors
                 console.log(errors)
               });
             break
-          case 'Delete':
+          case 'delete':
             axios.post('api/users/delete/multiple', bodyFormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
@@ -740,11 +829,13 @@ export default {
                 console.log(response)
               })
               .catch(errors => {
+                this.snackbar = true
+                this.toastText = errors
                 console.log(errors)
               });
             break
         }
-        this.bulkActionType = '---'
+        this.bulkActionType = 'default'
         this.getUsers()
       }
     }

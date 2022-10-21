@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Exports\UsersExport;
+use App\Exports\UsersExportTemplate;
 use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -17,7 +18,7 @@ class UsersController extends Controller
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
-        $dir = $request->input('dir') == 0? $request->input('dir'):'DESC';
+        $dir = $request->input('dir')? $request->input('dir'):'DESC';
         $searchValue = $request->input('search');
         $searchField = $request->input('searchField');
         $searchValue2 = $request->input('search2');
@@ -241,6 +242,10 @@ class UsersController extends Controller
     public function export(Request $request) 
     {
         return Excel::download(new UsersExport, 'users.csv');
+    }
+    public function exportTemplate(Request $request) 
+    {
+        return Excel::download(new UsersExportTemplate(), 'userstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
