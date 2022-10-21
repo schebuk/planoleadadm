@@ -122,6 +122,117 @@ class UsersController extends Controller
             ->paginate($length);
         return ['data' => $users, 'draw' => $request->input('draw')];
     }
+
+    public function getTrashList(Request $request)
+    {
+        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
+
+        $length = $request->input('length');
+        $column = $request->input('column') == 0? 'id':$request->input('column');
+        $dir = $request->input('dir')? $request->input('dir'):'DESC';
+        $searchValue = $request->input('search');
+        $searchField = $request->input('searchField');
+        $searchValue2 = $request->input('search2');
+        $searchType = 'LIKE';
+        $searchType2 = 'LIKE';
+
+        switch ($request->input('searchType')){
+            case 'contains':
+                $searchValue = '%' . $searchValue . '%';
+                break;
+            case 'start':
+                $searchValue = $searchValue . '%';
+                break;
+            case 'end':
+                $searchValue = '%' . $searchValue;
+                break;
+            case 'equal':
+                $searchType = '=';
+                if ($searchValue == 0){
+                    $searchValue = 1;
+                    $searchType = '!=';
+                }
+                break;
+            case 'notequal':
+                $searchType = '<>';
+                break;
+            case 'greater':
+                $searchType = '>';
+                break;
+            case 'greaterequal':
+                $searchType = '>=';
+                break;
+            case 'lesser':
+                $searchType = '<';
+                break;
+            case 'lesserequal':
+                $searchType = '<=';
+                break;
+        }
+        
+        switch ($request->input('searchType2')){
+            case 'contains':
+                $searchValue2 = '%' . $searchValue2 . '%';
+                break;
+            case 'start':
+                $searchValue2 = $searchValue2 . '%';
+                break;
+            case 'end':
+                $searchValue2 = '%' . $searchValue2;
+                break;
+            case 'equal':
+                $searchType2 = '=';
+                break;
+            case 'notequal':
+                $searchType2 = '<>';
+                break;
+            case 'greater':
+                $searchType2 = '>';
+                break;
+            case 'greaterequal':
+                $searchType = '>=';
+                break;
+            case 'lesser':
+                $searchType2 = '<';
+                break;
+            case 'lesserequal':
+                $searchType2 = '<=';
+                break;
+        }
+
+        $query =  User::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
+
+        if ($searchValue && $searchField) {
+            if ($request->input('search2')){
+                switch ($request->input('operator')){
+                    case 'AND':
+                        $query->where(function($query) use ($searchValue, $searchField, $searchType, $searchValue2, $searchType2) {
+                            $query->where($searchField, $searchType, $searchValue)
+                                ->where($searchField, $searchType2, $searchValue2);
+                        });
+                        break;
+                    case 'OR':
+                        $query->where(function($query) use ($searchValue, $searchField, $searchType, $searchValue2, $searchType2) {
+                            $query->where($searchField, $searchType,$searchValue)
+                            ->orWhere($searchField, $searchType2,$searchValue2);
+                        });
+                        break;
+                }
+            }
+            else{
+                $query->where(function($query) use ($searchValue, $searchField, $searchType) {
+                    $query->where($searchField, $searchType,$searchValue);
+                });
+            }
+        }
+
+        $users = $query
+            ->where('trash','=',1)
+            ->where('delete','=',0)
+            ->where('name','!=','admin')
+            ->paginate($length);
+        return ['data' => $users, 'draw' => $request->input('draw')];
+    }
     
     public function getUserById(Request $request,$id)
     {
@@ -197,6 +308,21 @@ class UsersController extends Controller
             return response()->json(['error'=>'Provide proper details']);
         }
     }
+    public function restore(Request $request, $id)
+    {
+        $user = User::where('id','=',$id)->first();
+          
+        $user->trash = 0;
+        $user->updated_at = date("Y-m-d H:i:s");
+        
+        if($user->save()){
+            return response()->json([
+            'message' => 'Usuario Restaurado com sucesso'
+            ], 200);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+    }
     public function delete(Request $request, $id)
     {
         $user = User::where('id','=',$id)->first();
@@ -250,9 +376,10 @@ class UsersController extends Controller
     public function getTrash(Request $request) 
     {
         $users = User::select('id', 'name', 'email', 'user', 'telephone')
-                    ->where('trash','=',1)
-                    ->orderBy('id', 'desc')
-                    ->get();
+            ->where('trash','=',1)
+            ->where('delete','!=',1)
+            ->orderBy('id', 'desc')
+            ->get();
         return $users;
     }
     public function massEdit(Request $request){
@@ -290,6 +417,23 @@ class UsersController extends Controller
         if($users){
             return response()->json([
             'message' => count($ids).' Registros mandados para lixeira com sucesso'
+            ], 200);
+        }else{
+            return response()->json(['error'=>'Provide proper details']);
+        }
+        
+    }
+    public function massRestore(Request $request){
+        $ids = explode(',',$request->ids);
+        $users = User::whereIn('id',$ids)
+            ->update([
+                'trash'=>0,
+                'updated_at' => date("Y-m-d H:i:s")
+            ]);
+                    
+        if($users){
+            return response()->json([
+            'message' => count($ids).' Registros restaurados com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);

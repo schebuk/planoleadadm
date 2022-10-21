@@ -6,9 +6,7 @@ import Auth from '../../Auth.js';
 import Login from '@/views/Login.vue'
 import Dashboard from '@/views/dashboard/Dashboard.vue'
 import Users from '@/views/Users.vue'
-import Icons from '@/views/icons/Icons.vue'
-import Card from '@/views/cards/Card.vue'
-import FormLayouts from '@/views/form-layouts/FormLayouts.vue'
+import UsersTrash from '@/views/UsersTrash.vue'
 import Error from '@/views/Error.vue'
 import AccountSettings from '@/views/pages/account-settings/AccountSettings.vue'
 import Register from '@/views/Register.vue'
@@ -39,25 +37,9 @@ const routes = [
     },
   },
   {
-    path: '/icons',
-    name: 'icons',
-    component: Icons,
-    meta:{
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/cards',
-    name: 'cards',
-    component: Card,
-    meta:{
-      requiresAuth: true,
-    },
-  },
-  {
-    path: '/form-layouts',
-    name: 'form-layouts',
-    component: FormLayouts,
+    path: '/users/trash',
+    name: 'users-trash',
+    component: UsersTrash,
     meta:{
       requiresAuth: true,
     },

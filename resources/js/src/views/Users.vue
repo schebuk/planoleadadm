@@ -93,34 +93,25 @@
         ></v-icon>
       </v-btn>
       
-      <v-dialog
-        v-model="modal.trash"
-        max-width="800px"
-      >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="mx-2"
-            fab
-            dark
-            color="#6e7b8b"
-            v-bind="attrs"
-            v-on="on"
-          >     
-          <v-badge
-            color="#ff0000"
-            :content="trashCount"
-          >   
-            <v-icon 
-              v-text="mdiTrashCan" 
-            ></v-icon> 
-            
-        </v-badge> 
-                         
-          </v-btn>
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        color="#6e7b8b"
+        :to="{name:'users-trash'}"
+      >     
+        <v-badge
+          color="#ff0000"
+          :content="trashCount"
+        >   
+          <v-icon 
+            v-text="mdiTrashCan" 
+          ></v-icon> 
           
-        </template>      
-        <TrashTable :trashData="trashData" :trashFields="trashFields" modalname="trash" @closemodal="closemodal" @save="save"></TrashTable>
-      </v-dialog>
+        </v-badge> 
+                        
+      </v-btn>
+          
     </div>
     
     <div class="control">
@@ -364,7 +355,6 @@
 import Datatable from './Datatable.vue';
 import TableFilter from './TableFIlter.vue';
 import Form from './Form.vue';
-import TrashTable from './Trash.vue';
 import LaravelVuePagination from 'laravel-vue-pagination';
 
 import {
@@ -382,7 +372,6 @@ export default {
       datatable: Datatable, 
       TableFilter:TableFilter,
       Form:Form,
-      TrashTable:TrashTable,
       'Pagination': LaravelVuePagination 
     },
     created() {
@@ -797,7 +786,7 @@ export default {
             this.modal.bulkedit = true
             break
           case 'trash':
-            axios.post('api/users/trash/multiple', bodyFormData, {
+            axios.post('/api/users/trash/multiple', bodyFormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -816,7 +805,7 @@ export default {
               });
             break
           case 'delete':
-            axios.post('api/users/delete/multiple', bodyFormData, {
+            axios.post('/api/users/delete/multiple', bodyFormData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
