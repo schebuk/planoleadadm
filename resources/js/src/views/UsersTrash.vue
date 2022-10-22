@@ -152,107 +152,34 @@
     </div>
     <ul class="filterConteiner">
       <li v-for="column in columns" :style="'width:'+column.width">
-        <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
+        <TableFilter 
+          :showFilterfield="showFilterfield" 
+          :column="column" 
+          :tableData="tableData" 
+          @setSearchField="setSearchField" 
+          @getUsers="getUsers"
+        ></TableFilter>
       </li>
     </ul>
-    <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" :allSelelected="allSelelected" @sort="sortBy" @showFilter="showFilter" @selectAll="selectAll">
-        <tbody>
-          <tr v-for="user in Users" :key="user.id">
-            <td>
-              <v-checkbox
-                v-model="massSelelection[user.id]"
-              ></v-checkbox>
-            </td>
-            <td>{{user.name}}</td>
-            <td>{{user.email}}</td>
-            <td>{{user.telephone}}</td>
-            <td>{{user.user}}</td>
-            <td>{{user.created_at}}</td>
-            <td>
-              <v-btn
-                icon 
-                color="#89F98C"
-                @click="abredialogo('restoredialog',user.id)"
-              >                
-                <v-icon 
-                  v-text="mdiFileRestore" 
-                ></v-icon>
-              </v-btn>
-              <v-dialog
-                v-model="modal.restoredialog[user.id]"
-                max-width="290"
-              >
-                <v-card>
-                  <v-card-title class="text-h5">
-                    Restaturar Registro?
-                  </v-card-title>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                      color="danger"
-                      text
-                      @click="fechadialogo('restoredialog',user.id)"
-                    >
-                      Não
-                    </v-btn>
-
-                    <v-btn
-                      color="success"
-                      text
-                      @click="restore(user.id)"
-                    >
-                      Sim
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-btn
-                icon 
-                color="#CCA01D"
-                @click="abredialogo('deletedialog',user.id)"
-              >       
-                <v-icon 
-                  v-text="mdiDelete" 
-                  color="#FF0000"
-                ></v-icon> 
-              </v-btn>
-              <v-dialog
-                v-model="modal.deletedialog[user.id]"
-                max-width="290"
-              >
-                <v-card>
-                  <v-card-title class="text-h5">
-                    deletar permanetemente?
-                  </v-card-title>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                      color="danger"
-                      text
-                      @click="fechadialogo('deletedialog',user.id)"
-                    >
-                      Não
-                    </v-btn>
-
-                    <v-btn
-                      color="success"
-                      text
-                      @click="deleteregister(user.id)"
-                    >
-                      Sim
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              
-            </td>
-          </tr>
-        </tbody>
-    </datatable>
+    <datatabletrash 
+      :columns="columns" 
+      :sortKey="sortKey" 
+      :sortOrders="sortOrders" 
+      :allSelelected="allSelelected"
+      :registers="Users"
+      :massSelelection="massSelelection"
+      :modal="modal"
+      @sort="sortBy" 
+      @showFilter="showFilter" 
+      @selectAll="selectAll"
+      @fechadialogo="fechadialogo"
+      @abredialogo="abredialogo"
+      @restore="restore"
+      @deleteregister="deleteregister"
+      @closemodal="closemodal" 
+      >
+        
+    </datatabletrash>
     <div class="control">
       <div class="select">
         <v-row>
@@ -301,7 +228,7 @@
 
 <script>  
 
-import Datatable from './Datatable.vue';
+import DatatableTrash from './DatatableTrash.vue';
 import TableFilter from './TableFIlter.vue';
 import LaravelVuePagination from 'laravel-vue-pagination';
 
@@ -314,7 +241,7 @@ import {
 } from '@mdi/js'
 export default {
     components: { 
-      datatable: Datatable, 
+      datatabletrash: DatatableTrash, 
       TableFilter:TableFilter,
       'Pagination': LaravelVuePagination,
     },

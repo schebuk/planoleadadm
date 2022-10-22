@@ -57,7 +57,7 @@
           <v-btn
             color="blue darken-1"
             text
-            @click="closeModal('userRegister')"
+            @click="closeModal(modalname)"
           >
             Close
           </v-btn>

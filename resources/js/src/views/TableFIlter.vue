@@ -316,11 +316,15 @@
             let searchOperator = ['AND','OR']
             let menu = false;
             if (this.column.type != 'string' || this.column.type != 'number'){
-                if (this.column.type != 'bool'){
-                    this.tableData.searchType='equal'
-                }
-                else{
+                if (this.column.type == 'bool'){
                     this.tableData.searchType='lesser'
+                }
+                else if (this.column.type == 'date'){
+                    this.tableData.searchType='greater'
+                    this.tableData.searchType2='greater'
+                }
+                else{                    
+                    this.tableData.searchType='contains'
                 }
             }
             return{

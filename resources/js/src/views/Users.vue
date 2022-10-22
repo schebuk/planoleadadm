@@ -172,7 +172,17 @@
         </v-badge> 
                         
       </v-btn>
-          
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        color="#f5c242"
+        @click="clearSearch"
+      >      
+          <v-icon 
+            v-text="mdiMagnifyRemoveOutline " 
+          ></v-icon>                         
+      </v-btn>
     </div>
     
     <div class="control">
@@ -233,138 +243,35 @@
     </div>
     <ul class="filterConteiner">
       <li v-for="column in columns" :style="'width:'+column.width">
-        <TableFilter :showFilterfield="showFilterfield" :column="column" :tableData="tableData" @setSearchField="setSearchField" @getUsers="getUsers"></TableFilter>
+        <TableFilter 
+          :showFilterfield="showFilterfield" 
+          :column="column" 
+          :tableData="tableData"
+          @setSearchField="setSearchField" 
+          @getUsers="getUsers"
+        ></TableFilter>
       </li>
     </ul>
-    <datatable :columns="columns" :sortKey="sortKey" :sortOrders="sortOrders" :allSelelected="allSelelected" @sort="sortBy" @showFilter="showFilter" @selectAll="selectAll">
-        <tbody>
-          <tr v-for="user in Users" :key="user.id">
-            <td>
-              <v-checkbox
-                v-model="massSelelection[user.id]"
-              ></v-checkbox>
-            </td>
-            <td>{{user.name}}</td>
-            <td>{{user.email}}</td>
-            <td>{{user.telephone}}</td>
-            <td>{{user.user}}</td>
-            <td>{{user.regraId}}</td>
-            <td>
-              <v-switch
-                v-model="user.status"
-                inset
-                @click="changestatus(user.status,user.id)"
-              ></v-switch>
-            </td>
-            <td>{{user.created_at}}</td>
-            <td>
-              <v-dialog
-                v-model="modal.useredit[user.id]"
-                max-width="800px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    icon
-                    color="3D1EF9"
-                    v-bind="attrs"
-                    v-on="on"
-                  >     
-                    <v-icon 
-                      v-text="mdiPencil" 
-                    ></v-icon>
-                    
-                  </v-btn>
-                </template>
-                
-                <Form :fields="fields" :registerId="user.id" type="edit" title="Edit User" :modalname="'useredit_'+user.id" url="api/users/" @closemodal="closemodal" @save="save"></Form>
-              </v-dialog>
-
-              <v-btn
-                icon 
-                color="#CCA01D"
-                @click="abredialogo('trashdialog',user.id)"
-              >                
-                <v-icon 
-                  v-text="mdiTrashCan" 
-                ></v-icon>
-              </v-btn>
-              <v-dialog
-                v-model="modal.trashdialog[user.id]"
-                max-width="290"
-              >
-                <v-card>
-                  <v-card-title class="text-h5">
-                    Mandar registro para lixeira?
-                  </v-card-title>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                      color="danger"
-                      text
-                      @click="fechadialogo('trashdialog',user.id)"
-                    >
-                      Não
-                    </v-btn>
-
-                    <v-btn
-                      color="success"
-                      text
-                      @click="trash(user.id)"
-                    >
-                      Sim
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-
-              
-              <v-btn
-                icon 
-                color="#CCA01D"
-                @click="abredialogo('deletedialog',user.id)"
-              >       
-                <v-icon 
-                  v-text="mdiDelete" 
-                  color="#FF0000"
-                ></v-icon> 
-              </v-btn>
-              <v-dialog
-                v-model="modal.deletedialog[user.id]"
-                max-width="290"
-              >
-                <v-card>
-                  <v-card-title class="text-h5">
-                    deletar permanetemente?
-                  </v-card-title>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-
-                    <v-btn
-                      color="danger"
-                      text
-                      @click="fechadialogo('deletedialog',user.id)"
-                    >
-                      Não
-                    </v-btn>
-
-                    <v-btn
-                      color="success"
-                      text
-                      @click="deleteregister(user.id)"
-                    >
-                      Sim
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              
-            </td>
-          </tr>
-        </tbody>
-    </datatable>
+    <datatable 
+      :registers="Users" 
+      :columns="columns" 
+      :sortKey="sortKey" 
+      :sortOrders="sortOrders" 
+      :allSelelected="allSelelected" 
+      :massSelelection="massSelelection"
+      :fields="fields"
+      :modal="modal"
+      formeditUrl="api/users/"
+      @sort="sortBy" 
+      @changestatus="changestatus"
+      @showFilter="showFilter" 
+      @selectAll="selectAll"
+      @fechadialogo="fechadialogo"
+      @abredialogo="abredialogo"
+      @trash="trash"
+      @save="save"
+      @closemodal="closemodal" 
+    ></datatable>
     <div class="control">
       <div class="select">
         <v-row>
@@ -427,6 +334,7 @@ import {
   mdiPencil,
   mdiDelete,
   mdiTrashCan,
+  mdiMagnifyRemoveOutline,
 } from '@mdi/js'
 export default {
     components: { 
@@ -448,6 +356,7 @@ export default {
         mdiPencil,
         mdiDelete,
         mdiTrashCan,
+        mdiMagnifyRemoveOutline,
       }
     },
     data() {
@@ -669,7 +578,12 @@ export default {
         this.getUsers()
       },
       saveBulk(formfields,modalname){  
-        console.log(formfields) 
+        this.massSelelection.forEach((value, index) => {
+          if (value){
+            this.selectedIds.push(index)
+          }
+          this.massSelelection[index] = false
+        })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
         if (formfields.regraId) {
@@ -694,10 +608,14 @@ export default {
           console.log(errors)
         })          
         this.modal[modalname]=false;
-        this.bulkActionType = '---'
+        this.bulkActionType = 'default'
         this.getUsers()
       },
       changestatus(status,id){
+        
+        console.log(123)
+        console.log(status)
+        console.log(id)
         status = status? 1:0
         axios.get('/api/users/status/'+id+'/'+status)
           .then(response => {
@@ -908,6 +826,16 @@ export default {
         this.modal.bulkdelete = false
         this.bulkActionType = 'default'
         this.getUsers()
+      },
+      clearSearch(){
+        this.tableData.searchField = ''
+        this.tableData.search = ''
+        this.tableData.searchType = ''
+        this.tableData.operator = ''
+        this.tableData.searchType2 = ''
+        this.tableData.search2 = ''
+        this.getUsers()
+
       }
     }
 };

@@ -18,7 +18,7 @@ class UsersController extends Controller
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
-        $dir = $request->input('dir')? $request->input('dir'):'DESC';
+        $dir = $request->input('dir') != null? $request->input('dir'):'DESC';
         $searchValue = $request->input('search');
         $searchField = $request->input('searchField');
         $searchValue2 = $request->input('search2');
