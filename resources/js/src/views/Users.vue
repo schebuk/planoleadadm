@@ -242,11 +242,13 @@
       </div>
     </div>
     <ul class="filterConteiner">
-      <li v-for="column in columns" :style="'width:'+column.width">
+      <li v-for="column in columns" :style="'width: '+column.width+';'">
+        
         <TableFilter 
-          :showFilterfield="showFilterfield" 
+          :showFilterfield="showFilterfield"
           :column="column" 
-          :tableData="tableData"
+          :tableData="tableData" 
+          :key="column.name" 
           @setSearchField="setSearchField" 
           @getUsers="getUsers"
         ></TableFilter>
@@ -343,8 +345,9 @@ export default {
       Form:Form,
       'Pagination': LaravelVuePagination 
     },
-    created() {
-        this.getUsers();
+    beforeMount() {
+      this.getColumns()
+      this.getUsers()
     },
     setup() {
       return {
@@ -359,10 +362,7 @@ export default {
         mdiMagnifyRemoveOutline,
       }
     },
-    data() {
-      let sortOrders = {};
-      let showFilterfield = {};
-      
+    data() {      
       let modal = {
         usercad:false,
         useredit:[],
@@ -373,16 +373,6 @@ export default {
         bulktrash:false,
         bulkdelete:false,
       };
-      let columns = [
-          {width: '14%', label: 'name', name: 'name',type:'string' },
-          {width: '14%', label: 'email', name: 'email',type:'string'},
-          {width: '14%', label: 'telephone', name: 'telephone',type:'number'},
-          {width: '14%', label: 'user', name: 'user',type:'string'},
-          {width: '14%', label: 'regraId', name: 'regraId',type:'number'},
-          {width: '14%', label: 'status', name: 'status',type:'bool'},
-          {width: '14%', label: 'created_at', name: 'created_at',type:'date'},
-      ];
-      let searchFields = ['name','email','telephone','user','regraId','status','created_at']
       let fields = [
         {name:'name', type:'text'},
         {name:'email', type:'text'},
@@ -391,37 +381,25 @@ export default {
         {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
       ]
-      let trashFields = [
-        {name:'name', type:'text'},
-        {name:'email', type:'text'},
-        {name:'telephone', type:'number'},
-        {name:'user', type:'text'},
-      ]
       let bulkFields = [
         {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
-      ]
-      
+      ]      
       let bulkActionItens = [{action:'default',text:'-----'},
         {action:'edit',text:'Editar'},
         {action:'trash',text:'Mandar para Lixeira'},
         {action:'delete',text:'Deletar Permanentemente'}
       ]
-      columns.forEach((column) => {
-          sortOrders[column.name] = 0;
-          showFilterfield[column.name] = false;
-      });
       return {
         Users: [],
-        columns: columns,
+        columns: [],
         fields:fields,
         bulkFields:bulkFields,
         modal:modal,
         sortKey: 'id',
-        sortOrders: sortOrders,
-        showFilterfield: showFilterfield,
+        sortOrders: [],
+        showFilterfield: [],
         perPage: ['10', '50', '100'],
-        searchFields,
         snackbar:false,
         toastText: '',
         tableData: {
@@ -449,7 +427,6 @@ export default {
         bulkActionItens:bulkActionItens,
         bulkActionType:'',
         selectedIds: [],
-        trashFields: trashFields,
       }
     },
     methods: {
@@ -487,6 +464,42 @@ export default {
               console.log(errors);
           });
       },
+      getColumns(){
+        axios.post('/api/config/columns/users',{userId:1})
+          .then(response => {
+            if (response.data.data){
+              this.columns = response.data.data
+            }
+            else{
+              this.columns = [
+                {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "email", "type": "varchar(255)", "label": "email"}, 
+                {"name": "user", "type": "varchar(255)", "label": "user"}, 
+                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
+                {"name": "regraId", "type": "int(11)", "label": "regraId"}, 
+                {"name": "status", "type": "tinyint(1)", "label": "status"}, 
+                {"name": "created_at", "type": "timestamp", "label": "created_at"}
+              ]
+            }
+            
+            let sort = []
+            let filter= []
+            this.columns.forEach((column) => {
+              sort[column.name] = 0
+              filter[column.name] = false
+            });
+            
+            this.$set(this.sortOrders, sort)
+          
+            this.$set(this.showFilterfield, filter)
+            
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          })
+      },
       configPagination(data) {
         this.pagination = data;
       },
@@ -514,13 +527,15 @@ export default {
         this.getUsers()
       },
       showFilter(key){
+        console.log(this.showFilterfield[key])
           this.columns.forEach((column) => {
             if (column.name != key)
-              this.showFilterfield[column.name] = false;
+              this.$set(this.showFilterfield, column.name, false)
           });
           this.tableData.search = '';
           this.tableData.search2 = '';
-          this.showFilterfield[key] = !this.showFilterfield[key];
+          this.$set(this.showFilterfield, key, !this.showFilterfield[key])
+          console.log(this.showFilterfield)
           this.$nextTick(() => {
             let divfilter = "#filterdiv"+key
             this.$el.querySelector(divfilter).focus()
@@ -600,22 +615,16 @@ export default {
         .then(response => {
           this.snackbar = true
           this.toastText = response.data.message
-          console.log(response)
         })
         .catch(errors => {
           this.snackbar = true
           this.toastText = errors.data.error
-          console.log(errors)
         })          
         this.modal[modalname]=false;
         this.bulkActionType = 'default'
         this.getUsers()
       },
       changestatus(status,id){
-        
-        console.log(123)
-        console.log(status)
-        console.log(id)
         status = status? 1:0
         axios.get('/api/users/status/'+id+'/'+status)
           .then(response => {

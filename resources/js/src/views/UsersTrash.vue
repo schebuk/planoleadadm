@@ -151,9 +151,9 @@
       </div>
     </div>
     <ul class="filterConteiner">
-      <li v-for="column in columns" :style="'width:'+column.width">
+      <li v-for="column in columns" :style="'width: '+column.width+';'">
         <TableFilter 
-          :showFilterfield="showFilterfield" 
+          :showFilterfield="showFilterfield"
           :column="column" 
           :tableData="tableData" 
           @setSearchField="setSearchField" 
@@ -247,6 +247,7 @@ export default {
     },
     created() {
         this.getUsers();
+        this.getColumns();
     },
     setup() {
       return {
@@ -257,41 +258,25 @@ export default {
         mdiFileRestore,
       }
     },
-    data() {
-      let sortOrders = {};
-      let showFilterfield = {};
-      
+    data() {      
       let modal = {
         restoredialog:[],
         deletedialog:[],
         bulkrestore:false,
         bulkdelete:false,
-      };
-      let columns = [
-          {width: '14%', label: 'name', name: 'name',type:'string' },
-          {width: '14%', label: 'email', name: 'email',type:'string'},
-          {width: '14%', label: 'telephone', name: 'telephone',type:'number'},
-          {width: '14%', label: 'user', name: 'user',type:'string'},
-          {width: '14%', label: 'created_at', name: 'created_at',type:'date'},
-      ];
-      let searchFields = ['name','email','telephone','user','created_at']    
+      }; 
       let bulkActionItens = [{action:'default',text:'-----'},
         {action:'restore',text:'Restaurar registro'},
         {action:'delete',text:'Deletar Permanentemente'}
       ]
-      columns.forEach((column) => {
-          sortOrders[column.name] = 0;
-          showFilterfield[column.name] = false;
-      });
       return {
         Users: [],
-        columns: columns,
+        columns: [],
         modal:modal,
         sortKey: 'id',
-        sortOrders: sortOrders,
-        showFilterfield: showFilterfield,
+        sortOrders: [],
+        showFilterfield: [],
         perPage: ['10', '50', '100'],
-        searchFields,
         snackbar:false,
         toastText: '',
         tableData: {
@@ -346,6 +331,42 @@ export default {
               this.toastText = errors
               console.log(errors);
           });
+      },
+      getColumns(){
+        axios.post('/api/config/columns/users',{userId:1})
+          .then(response => {
+            if (response.data.data){
+              this.columns = response.data.data
+            }
+            else{
+              this.columns = [
+                {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "email", "type": "varchar(255)", "label": "email"}, 
+                {"name": "user", "type": "varchar(255)", "label": "user"}, 
+                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
+                {"name": "regraId", "type": "int(11)", "label": "regraId"}, 
+                {"name": "status", "type": "tinyint(1)", "label": "status"}, 
+                {"name": "created_at", "type": "timestamp", "label": "created_at"}
+              ]
+            }
+            
+            let sort = []
+            let filter= []
+            this.columns.forEach((column) => {
+              sort[column.name] = 0
+              filter[column.name] = false
+            });
+            
+            this.$set(this.sortOrders, sort)
+          
+            this.$set(this.showFilterfield, filter)
+            
+          })
+          .catch(errors => {
+            this.snackbar = true
+            this.toastText = errors
+            console.log(errors)
+          })
       },
       configPagination(data) {
         this.pagination = data;

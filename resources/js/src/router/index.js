@@ -8,6 +8,7 @@ import Dashboard from '@/views/dashboard/Dashboard.vue'
 import Users from '@/views/Users.vue'
 import UsersTrash from '@/views/UsersTrash.vue'
 import Error from '@/views/Error.vue'
+import Configurations from '@/views/Configurations.vue'
 import AccountSettings from '@/views/pages/account-settings/AccountSettings.vue'
 import Register from '@/views/Register.vue'
 
@@ -44,6 +45,15 @@ const routes = [
       requiresAuth: true,
     },
   },
+  {
+    path: '/configs',
+    name: 'configs',
+    component: Configurations,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  
   {
     path: '/pages/account-settings',
     name: 'pages-account-settings',

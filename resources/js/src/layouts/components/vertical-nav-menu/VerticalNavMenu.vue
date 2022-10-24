@@ -23,6 +23,7 @@
     <v-list expand shaped class="vertical-nav-menu-items pr-5">
       <nav-menu-link title="Dashboard" :to="{ name: 'dashboard' }" :icon="icons.mdiHomeOutline"></nav-menu-link>
       <nav-menu-link title="Usuarios" :to="{ name: 'users' }" :icon="icons.mdiAccountMultiple"></nav-menu-link>
+      <nav-menu-link title="Configurações" :to="{ name: 'configs' }" :icon="icons.mdiCog"></nav-menu-link>
     </v-list>
   </v-navigation-drawer>
 </template>
@@ -39,6 +40,7 @@ import {
   mdiFormSelect,
   mdiAccountCogOutline,
   mdiAccountMultiple,
+  mdiCog,
 } from '@mdi/js'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuGroup from './components/NavMenuGroup.vue'
@@ -68,6 +70,7 @@ export default {
         mdiFormSelect,
         mdiAccountCogOutline,
         mdiAccountMultiple,
+        mdiCog,
       },
     }
   },

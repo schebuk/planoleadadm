@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RulesController;
+use App\Http\Controllers\ConfigurationsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,6 @@ Route::group(['middleware' => 'auth:api'], function() {
   });
 });
 
-
 Route::get('users/', [UsersController::class, 'index']);
 Route::post('users/save/', [UsersController::class, 'save']);
 Route::post('users/edit/multiple/', [UsersController::class, 'massEdit']);
@@ -45,5 +45,9 @@ Route::post('users/export/template', [UsersController::class, 'exportTemplate'])
 Route::post('users/export/', [UsersController::class, 'export']);
 Route::get('users/gettrash/', [UsersController::class, 'getTrash']);
 Route::get('users/{id}', [UsersController::class, 'getUserById']);
+
+Route::post('config/columns/save/', [ConfigurationsController::class, 'columnsSave']);
+Route::post('config/columns/{page}', [ConfigurationsController::class, 'columns']);
+Route::get('config/{table}', [ConfigurationsController::class, 'getColumns']);
 
 Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);

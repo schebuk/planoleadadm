@@ -8,8 +8,8 @@
                       @click="$emit('selectAll')"
                     ></v-checkbox>
                 </th>
-                <th v-for="column in columns" :key="column.name" 
-                    :style="'width:'+column.width+';'+'cursor:pointer;'">
+                <th v-for="column in columns" :key="column.name" :id="'th'+column.name"
+                    style="cursor:pointer;">
                         <a href="javascript:void(0);" @click="$emit('sort', column.name)" style="text-decoration:none; color:black;
                         text-transform: capitalize;">
                             {{column.label}}
@@ -34,7 +34,7 @@
                     ></v-checkbox>
                 </td>
                 <td v-for="column in columns">
-                    <span v-if="column.type == 'bool'">
+                    <span v-if="column.type == 'tinyint(1)'">
                         
                         <v-switch
                             v-model="register[column.name]"

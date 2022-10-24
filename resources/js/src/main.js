@@ -8,11 +8,14 @@ import store from './store'
 import axios from './plugins/axios'
 import auth from '../Auth.js'
 import DatetimePicker from 'vuetify-datetime-picker'
+import VueDraggable from 'vue-draggable'
 
 
 Vue.use(router)
 Vue.use(auth)
 Vue.use(DatetimePicker)
+
+Vue.use(VueDraggable)
 
 Vue.use(require('vue-resource'));
 

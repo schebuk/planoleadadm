@@ -1,5 +1,5 @@
 <template>
-    <div v-if="column.type == 'string'">
+    <div v-if="column.type == 'varchar(255)'">
         <div 
             class="tableFilters" 
             v-if="showFilterfield[column.name]" 
@@ -85,7 +85,7 @@
             </v-container>
         </div>
     </div>
-    <div v-else-if="column.type == 'number'">
+    <div v-else-if="column.type == 'int(11)'">
         <div class="tableFilters" v-if="showFilterfield[column.name]" 
         :id="'filterdiv'+[column.name]"
         @focusout="handleFocusOut($event,column.name)"
@@ -170,7 +170,7 @@
             </v-container>
         </div>
     </div>
-    <div v-else-if="column.type == 'bool'">
+    <div v-else-if="column.type == 'tinyint(1)'">
         <div class="tableFilters" v-if="showFilterfield[column.name]" 
         :id="'filterdiv'+[column.name]"
         @focusout="handleFocusOut($event,column.name)"
@@ -198,7 +198,7 @@
         </div>
 
     </div>
-    <div v-else-if="column.type == 'date'">
+    <div v-else-if="column.type == 'timestamp'">
         <div class="tableFilters" v-if="showFilterfield[column.name]" 
         :id="'filterdiv'+[column.name]"
         tabindex="0"
@@ -315,11 +315,11 @@
             let searchTypeItensBool = ['equal'];
             let searchOperator = ['AND','OR']
             let menu = false;
-            if (this.column.type != 'string' || this.column.type != 'number'){
-                if (this.column.type == 'bool'){
+            if (this.column.type != 'varchar(255)' || this.column.type != 'int(11)'){
+                if (this.column.type == 'tinyint(1)'){
                     this.tableData.searchType='lesser'
                 }
-                else if (this.column.type == 'date'){
+                else if (this.column.type == 'timestamp'){
                     this.tableData.searchType='greater'
                     this.tableData.searchType2='greater'
                 }
