@@ -19,7 +19,7 @@ class UsersController extends Controller
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
-        $dir = $request->input('dir') != null? $request->input('dir'):'DESC';
+        $dir = $request->input('dir') == null? 'DESC':$request->input('dir');
         $searchValue = $request->input('search');
         $searchField = $request->input('searchField');
         $searchValue2 = $request->input('search2');
@@ -90,7 +90,7 @@ class UsersController extends Controller
                 break;
         }
 
-        $query =  User::select('*')->orderBy($column, $dir);
+        $query =  User::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){

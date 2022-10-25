@@ -45,13 +45,21 @@
                         class="d-inline-flex pa-2"
                         cols="6"
                         sm="6"
-                    >     
-                        <v-select
-                            :items="searchOperator"
-                            label="Search Type"
+                    >   
+                        <v-radio-group
                             v-model="tableData.operator"solo
                             @change="getUsers"
-                        ></v-select>
+                            row
+                        >
+                            <v-radio
+                                label="AND"
+                                value="AND"
+                            ></v-radio>
+                            <v-radio
+                                label="OR"
+                                value="OR"
+                            ></v-radio>
+                        </v-radio-group>
                     </v-col> 
                 </v-row>
                 <v-row no-gutters>
@@ -124,20 +132,20 @@
                         ></v-select>
                     </v-col>
                 </v-row>
-                <v-row no-gutters>
-                    <v-col
-                        class="d-inline-flex pa-2"
-                        cols="6"
-                        sm="6"
-                    >     
-                        <v-select
-                            :items="searchOperator"
-                            label="Search Type"
-                            v-model="tableData.operator"solo
-                            @change="getUsers"
-                        ></v-select>
-                    </v-col> 
-                </v-row>
+                <v-radio-group
+                    v-model="tableData.operator"solo
+                    @change="getUsers"
+                    row
+                >
+                    <v-radio
+                        label="AND"
+                        value="AND"
+                    ></v-radio>
+                    <v-radio
+                        label="OR"
+                        value="OR"
+                    ></v-radio>
+                </v-radio-group>
                 <v-row no-gutters>
                     <v-col
                         class="d-inline-flex pa-2"
@@ -315,18 +323,7 @@
             let searchTypeItensBool = ['equal'];
             let searchOperator = ['AND','OR']
             let menu = false;
-            if (this.column.type != 'varchar(255)' || this.column.type != 'int(11)'){
-                if (this.column.type == 'tinyint(1)'){
-                    this.tableData.searchType='lesser'
-                }
-                else if (this.column.type == 'timestamp'){
-                    this.tableData.searchType='greater'
-                    this.tableData.searchType2='greater'
-                }
-                else{                    
-                    this.tableData.searchType='contains'
-                }
-            }
+            
             return{
                 searchTypeItensString,
                 searchTypeItensData,

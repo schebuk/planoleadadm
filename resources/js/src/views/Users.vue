@@ -194,10 +194,17 @@
             cols="2"
             sm="2"
           >  
+            <p style="padding-top:15px;">Mostrando de {{ fromRegister }}-{{ toRegister }} de {{ totalRegister}}</p>
+          </v-col>
+          <v-col
+            class="d-inline-flex pa-2"
+            cols="2"
+            sm="2"
+          >  
             <v-select 
               width="30"
               v-model="bulkActionType" 
-              label="Bulk Action"
+              label="Ações em Massa"
               @change="bulkAction()" 
               :items="bulkActionItens"
               item-text="text"
@@ -212,7 +219,7 @@
             <v-select 
               width="30"
               v-model="tableData.length" 
-              label="Register per page"
+              label="Registros por pagina"
               @change="getUsers()" 
               :items="perPage"
             ></v-select>
@@ -220,8 +227,8 @@
           
           <v-col
             class="d-inline-flex pa-2"
-            cols="9"
-            sm="9"
+            cols="7"
+            sm="7"
             align-self="center"
           >  
             <Pagination 
@@ -286,7 +293,7 @@
             <v-select 
               width="30"
               v-model="bulkActionType" 
-              label="Bulk Action"
+              label="Ações em Massa"
               @change="bulkAction()" 
               :items="bulkActionItens"
               item-text="text"
@@ -388,7 +395,6 @@ export default {
       let bulkActionItens = [{action:'default',text:'-----'},
         {action:'edit',text:'Editar'},
         {action:'trash',text:'Mandar para Lixeira'},
-        {action:'delete',text:'Deletar Permanentemente'}
       ]
       return {
         Users: [],
@@ -402,6 +408,9 @@ export default {
         perPage: ['10', '50', '100'],
         snackbar:false,
         toastText: '',
+        toRegister:'',
+        fromRegister:'',
+        totalRegister: '',
         tableData: {
           draw: 0,
           length: 10,
@@ -412,7 +421,7 @@ export default {
           search2: '',
           searchType2: 'contains',
           column: 0,
-          dir: 'asc',
+          dir: 'desc',
         },
         pagination:{},
         isSelecting: false,
@@ -502,6 +511,9 @@ export default {
       },
       configPagination(data) {
         this.pagination = data;
+        this.toRegister = data.data.to;
+        this.fromRegister = data.data.from;
+        this.totalRegister = data.data.total;
       },
       sortBy(key) {
           this.sortKey = key;
@@ -509,8 +521,19 @@ export default {
             if (column.name != key)
               this.sortOrders[column.name] = 0;
           });
-          this.sortOrders[key] = this.sortOrders[key] == 0?  1 : this.sortOrders[key] * -1;
           this.tableData.column = key;
+          switch (this.sortOrders[key]){
+            case 0:
+              this.sortOrders[key] = 1 
+              break 
+            case 1:
+              this.sortOrders[key] =  -1
+              break
+            case -1:
+              this.sortOrders[key] = 0
+              this.tableData.column = '';
+            break
+          }
           this.tableData.dir = this.sortOrders[key] === 1 ? 'asc' : 'desc';
           this.getUsers();
       },
@@ -528,12 +551,26 @@ export default {
       },
       showFilter(key){
         console.log(this.showFilterfield[key])
+        let type = ''
           this.columns.forEach((column) => {
-            if (column.name != key)
+            if (column.name != key){
               this.$set(this.showFilterfield, column.name, false)
+            }
+            else{
+              type = column.type
+            }
           });
           this.tableData.search = '';
           this.tableData.search2 = '';
+          this.tableData.searchType='contains'
+          this.tableData.searchType2='contains'
+          if (type == 'tinyint(1)'){
+            this.tableData.searchType='equal'
+          }
+          if (type == 'timestamp'){
+            this.tableData.searchType='greater'
+            this.tableData.searchType2='greater'
+          }
           this.$set(this.showFilterfield, key, !this.showFilterfield[key])
           console.log(this.showFilterfield)
           this.$nextTick(() => {

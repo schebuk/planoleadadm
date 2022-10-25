@@ -13,10 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        //
-        
-        Schema::table('configuration', function (Blueprint $table) {
-            $table->foreign('userId')->references('id')->on('users');
+       
+        Schema::table('users', function (Blueprint $table) {
+            $table->boolean('status')->default(0)->change();
+            $table->boolean('trash')->default(0)->change();
+            $table->boolean('delete')->default(0)->change();            
         });
     }
 

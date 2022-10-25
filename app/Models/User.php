@@ -24,9 +24,9 @@ class User extends Authenticatable
         'telephone',
         'user',
         'regraId',
-        'status',
-        'trash',
-        'delete',
+        'status' => 0,
+        'trash' => 0,
+        'delete' => 0,
     ];
 
     /**

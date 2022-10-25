@@ -395,13 +395,29 @@ export default {
         this.getUsers()
       },
       showFilter(key){
+        console.log(this.showFilterfield[key])
+        let type = ''
           this.columns.forEach((column) => {
-            if (column.name != key)
-              this.showFilterfield[column.name] = false;
+            if (column.name != key){
+              this.$set(this.showFilterfield, column.name, false)
+            }
+            else{
+              type = column.type
+            }
           });
           this.tableData.search = '';
           this.tableData.search2 = '';
-          this.showFilterfield[key] = !this.showFilterfield[key];
+          this.tableData.searchType='contains'
+          this.tableData.searchType2='contains'
+          if (type == 'tinyint(1)'){
+            this.tableData.searchType='equal'
+          }
+          if (type == 'timestamp'){
+            this.tableData.searchType='greater'
+            this.tableData.searchType2='greater'
+          }
+          this.$set(this.showFilterfield, key, !this.showFilterfield[key])
+          console.log(this.showFilterfield)
           this.$nextTick(() => {
             let divfilter = "#filterdiv"+key
             this.$el.querySelector(divfilter).focus()
