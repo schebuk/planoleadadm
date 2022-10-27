@@ -7,6 +7,10 @@ import Login from '@/views/Login.vue'
 import Dashboard from '@/views/dashboard/Dashboard.vue'
 import Users from '@/views/Users.vue'
 import UsersTrash from '@/views/UsersTrash.vue'
+import Segments from '@/views/Segments.vue'
+import SegmentsTrash from '@/views/SegmentsTrash.vue'
+import Rules from '@/views/Rules.vue'
+import RulesTrash from '@/views/RulesTrash.vue'
 import Error from '@/views/Error.vue'
 import Configurations from '@/views/Configurations.vue'
 import AccountSettings from '@/views/pages/account-settings/AccountSettings.vue'
@@ -41,6 +45,38 @@ const routes = [
     path: '/users/trash',
     name: 'users-trash',
     component: UsersTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/segments',
+    name: 'segments',
+    component: Segments,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/segments/trash',
+    name: 'segments-trash',
+    component: SegmentsTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/rules',
+    name: 'rules',
+    component: Rules,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/rules/trash',
+    name: 'rules-trash',
+    component: RulesTrash,
     meta:{
       requiresAuth: true,
     },

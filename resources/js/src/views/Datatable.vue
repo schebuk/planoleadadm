@@ -36,11 +36,15 @@
                 <td v-for="column in columns">
                     <span v-if="column.type == 'tinyint(1)'">
                         
-                        <v-switch
+                        <v-switch v-if="type == 'list'"
                             v-model="register[column.name]"
                             inset
                             @click="$emit('changestatus',register[column.name],register.id)"
                         ></v-switch>
+                        
+                        <span v-if="type == 'trash'">
+                          {{register[column.name]==0?'Desativado':'ativado'}}
+                        </span>
                     </span>
                     <span v-else>
                         {{register[column.name]}}
@@ -48,8 +52,9 @@
                 </td>
                 <td>
                     <v-dialog
-                      v-model="modal.useredit[register.id]"
+                      v-model="modal.edit[register.id]"
                       max-width="800px"
+                      v-if="type == 'list'"
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-btn
@@ -69,15 +74,16 @@
                             :fields="fields" 
                             :registerId="register.id" 
                             type="edit" 
-                            title="Edit User" 
-                            :modalname="'useredit_'+register.id" 
+                            title="Editar" 
+                            :modalname="'edit_'+register.id" 
                             :url="formeditUrl" 
                             @closemodal="closeModal" 
                             @save="save">
                         </Form>
                     </v-dialog>
             
-                    <v-btn
+                    <v-btn 
+                      v-if="type == 'list'"
                       icon 
                       color="#CCA01D"
                       @click="$emit('abredialogo','trashdialog',register.id)"
@@ -86,9 +92,11 @@
                         v-text="mdiTrashCan" 
                       ></v-icon>
                     </v-btn>
+                    
                     <v-dialog
                       v-model="modal.trashdialog[register.id]"
                       max-width="290"
+                      v-if="type == 'list'"
                     >
                       <v-card>
                         <v-card-title class="text-h5">
@@ -115,7 +123,91 @@
                           </v-btn>
                         </v-card-actions>
                       </v-card>
-                    </v-dialog>              
+                    </v-dialog>  
+                    
+                    <v-btn
+                      icon 
+                      color="#89F98C"
+                      @click="$emit('abredialogo','restoredialog',register.id)"
+                      v-if="type == 'trash'"
+                    >                
+                      <v-icon 
+                          v-text="mdiFileRestore" 
+                        ></v-icon>
+                      </v-btn>
+                      <v-dialog
+                        v-model="modal.restoredialog[register.id]"
+                        max-width="290"
+                        v-if="type == 'trash'"
+                      >
+                      <v-card>
+                        <v-card-title class="text-h5">
+                          Restaturar Registro?
+                        </v-card-title>
+        
+                        <v-card-actions>
+                          <v-spacer></v-spacer>
+        
+                          <v-btn
+                            color="danger"
+                            text
+                            @click="$emit('fechadialogo','restoredialog',register.id)"
+                          >
+                            Não
+                          </v-btn>
+        
+                          <v-btn
+                            color="success"
+                            text
+                            @click="$emit('restore',register.id)"
+                          >
+                            Sim
+                          </v-btn>
+                        </v-card-actions>
+                      </v-card>
+                    </v-dialog>
+                    <v-btn
+                      icon 
+                      color="#CCA01D"
+                      @click="$emit('abredialogo','deletedialog',register.id)"
+                      v-if="type == 'trash'"
+                    >       
+                      <v-icon 
+                        v-text="mdiDelete" 
+                        color="#FF0000"
+                      ></v-icon> 
+                    </v-btn> 
+                    <v-dialog
+                        v-model="modal.deletedialog[register.id]"
+                        max-width="290"
+                        v-if="type == 'trash'"
+                      >
+                        <v-card>
+                          <v-card-title class="text-h5">
+                            deletar permanetemente?
+                          </v-card-title>
+
+                          <v-card-actions>
+                            <v-spacer></v-spacer>
+
+                            <v-btn
+                              color="danger"
+                              text
+                              @click="$emit('fechadialogo','deletedialog',register.id)"
+                            >
+                              Não
+                            </v-btn>
+
+                            <v-btn
+                              color="success"
+                              text
+                              @click="$emit('deleteregister',register.id)"
+                            >
+                              Sim
+                            </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-dialog>           
                   </td>
             </tr>
           </tbody>
@@ -134,6 +226,7 @@ import Form from './Form.vue';
         mdiPencil,
         mdiDelete,
         mdiTrashCan,
+        mdiFileRestore,
     } from '@mdi/js'
     export default{
         components: { 
@@ -148,10 +241,11 @@ import Form from './Form.vue';
                 mdiPencil,
                 mdiDelete,
                 mdiTrashCan,
+                mdiFileRestore,
             }
         },
-        emits: ['setSearchField','getUsers','sort'],
-        props:['columns','sortKey', 'sortOrders','allSelelected','registers','massSelelection','fields','formeditUrl','modal'],
+        emits: ['setSearchField','getRegisters','sort'],
+        props:['columns','sortKey', 'sortOrders','allSelelected','registers','massSelelection','fields','formeditUrl','modal','type'],
         methods: {
           closeModal(modalname){
             this.$emit('closemodal', modalname)

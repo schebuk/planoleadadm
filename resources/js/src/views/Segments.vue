@@ -1,5 +1,5 @@
 <template>
-  <div class="Users">
+  <div class="Segments">
     <v-snackbar
       v-model="snackbar"
     >
@@ -85,7 +85,7 @@
     </v-dialog>
     <div class="topButtons">
       <v-dialog
-        v-model="modal.usercad"
+        v-model="modal.cad"
         max-width="800px"
       >
         <template v-slot:activator="{ on, attrs }">
@@ -103,7 +103,7 @@
             </v-icon>             
           </v-btn>
         </template>      
-        <Form :fields="fields" modalname="cad" title="Adicionar Usuario" type="create" @closemodal="closemodal" @save="save"></Form>
+        <Form :fields="fields" modalname="cad" title="Adicionar Segmento" type="create" @closemodal="closemodal" @save="save"></Form>
       </v-dialog>
       <v-btn
         class="mx-2"
@@ -124,7 +124,7 @@
         dark
         color="#a1d4cf"
         :loading="isSelectingTemplateExport" 
-        @click="exportUserTemplate"
+        @click="exportTemplate"
       >     
         <v-badge
           color="#ff0000"
@@ -147,7 +147,7 @@
       dark
       color="primary"
       :loading="isSelectingExport" 
-      @click="exportUser"
+      @click="exportRegisters"
       >        
         <v-icon 
           v-text="mdiFileDownload" 
@@ -159,7 +159,7 @@
         fab
         dark
         color="#6e7b8b"
-        :to="{name:'users-trash'}"
+        :to="{name:'segments-trash'}"
       >     
         <v-badge
           color="#ff0000"
@@ -262,7 +262,7 @@
       </li>
     </ul>
     <datatable 
-      :registers="Users" 
+      :registers="Registers" 
       :columns="columns" 
       :sortKey="sortKey" 
       :sortOrders="sortOrders" 
@@ -271,7 +271,7 @@
       :fields="fields"
       :modal="modal"
       type="list"
-      formeditUrl="api/users/"
+      formeditUrl="api/segments/"
       @sort="sortBy" 
       @changestatus="changestatus"
       @showFilter="showFilter" 
@@ -383,14 +383,9 @@ export default {
       };
       let fields = [
         {name:'name', type:'text'},
-        {name:'email', type:'text'},
-        {name:'telephone', type:'number'},
-        {name:'user', type:'text'},
-        {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
       ]
       let bulkFields = [
-        {name:'regraId', type:'related',table:'regras',url:'/api/rules/getselect/',description:'rules'},
         {name:'status', type:'bool'},
       ]      
       let bulkActionItens = [{action:'default',text:'-----'},
@@ -398,7 +393,7 @@ export default {
         {action:'trash',text:'Mandar para Lixeira'},
       ]
       return {
-        Users: [],
+        Registers: [],
         columns: [],
         fields:fields,
         bulkFields:bulkFields,
@@ -440,22 +435,22 @@ export default {
       }
     },
     methods: {
-      getRegisters(page = 1,url = '/api/users/?page=') {
+      getRegisters(page = 1,url = '/api/segments/?page=') {
         this.tableData.draw++;
         axios.get(url + page, {params: this.tableData})
           .then(response => {
             let data = response.data;
             let countRegisters = 0
             if (this.tableData.draw == data.draw) {
-              this.Users = data.data.data;
+              this.Registers = data.data.data;
               this.allSelelected = false
-              this.Users.forEach((user, index) =>{
-                this.Users[index].status = user.status == 0 ? false : true 
-                this.modal.edit[user.id] = false
-                this.modal.trashdialog[user.id]= false
-                this.modal.deletedialog[user.id]= false
-                if(!this.massSelelection[user.id]){
-                  this.massSelelection[user.id] = false
+              this.Registers.forEach((register, index) =>{
+                this.Registers[index].status = register.status == 0 ? false : true 
+                this.modal.edit[register.id] = false
+                this.modal.trashdialog[register.id]= false
+                this.modal.deletedialog[register.id]= false
+                if(!this.massSelelection[register.id]){
+                  this.massSelelection[register.id] = false
                 }
                 else{
                   countRegisters++
@@ -475,7 +470,7 @@ export default {
           });
       },
       getColumns(){
-        axios.post('/api/config/columns/users',{userId:1})
+        axios.post('/api/config/columns/segments',{id:1})
           .then(response => {
             if (response.data.data){
               this.columns = response.data.data
@@ -483,16 +478,11 @@ export default {
             else{
               this.columns = [
                 {"name": "name", "type": "varchar(255)", "label": "name"}, 
-                {"name": "email", "type": "varchar(255)", "label": "email"}, 
-                {"name": "user", "type": "varchar(255)", "label": "user"}, 
-                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
-                {"name": "regraId", "type": "int(11)", "label": "regraId"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]
             }
             
-            let sort = []
             let filter= []
             this.columns.forEach((column) => {
               this.sortOrders[column.name] = 0
@@ -581,31 +571,25 @@ export default {
             this.$el.querySelector(divfilter).focus()
           },1);
       },
-      closemodal(modal){
-        let modalsplit = modal.split('_')
-        if (modalsplit[1]){   
-          let modalname = modalsplit[0]; 
-          let modalid = modalsplit[1]     
+      closemodal(modalname){
+        let modal = modalname.split('_')
+        if (modal[1]){   
+          let modalname = modal[0]; 
+          let modalid = modal[1]     
           this.$set(this.modal[modalname],modalid , false) 
         }
         else{
-          this.$set(this.modal, modal, false)
-          
-        console.log(this.modal[modal])
+          this.modal[modalname]=false;
         }
       },
       save(formfields,modalname){        
         let  values = {
           name: formfields.name,
-          email: formfields.email,
-          telephone: formfields.telephone,
-          user:formfields.user,
-          regraId:formfields.regraId,
           status: formfields.status,
         }
         if(formfields.id){
           values['id'] = formfields.id
-          axios.post('/api/users/edit', values)
+          axios.post('/api/segments/edit', values)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -619,7 +603,7 @@ export default {
           
         }
         else{
-          axios.post('/api/users/save', values)
+          axios.post('/api/segments/save', values)
           .then(response => {  
             this.snackbar = true
             this.toastText = response.data.message
@@ -649,7 +633,7 @@ export default {
         if (formfields.status != null) {
           bodyFormData.append('status', formfields.status); 
         }
-        axios.post('/api/users/edit/multiple', bodyFormData, {
+        axios.post('/api/segments/edit/multiple', bodyFormData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -668,7 +652,7 @@ export default {
       },
       changestatus(status,id){
         status = status? 1:0
-        axios.get('/api/users/status/'+id+'/'+status)
+        axios.get('/api/segments/status/'+id+'/'+status)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -682,7 +666,7 @@ export default {
         this.getRegisters()
       },
       trash(id){
-        axios.get('/api/users/trash/'+id)
+        axios.get('/api/segments/trash/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -697,7 +681,7 @@ export default {
         this.getRegisters()
       },      
       deleteregister(id){
-        axios.get('/api/users/delete/'+id)
+        axios.get('/api/segments/delete/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -732,7 +716,7 @@ export default {
         const formData = new FormData();
         const file = e.target.files[0];
         formData.append('file', file);
-        axios.post('/api/users/import', formData)
+        axios.post('/api/segments/import', formData)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -746,14 +730,14 @@ export default {
           });
           
       },
-      exportUser(){
+      exportRegisters(){
         this.isSelectingExport = true;
-        axios.post('/api/users/export',{responseType: 'arraybuffer'})
+        axios.post('/api/segments/export',{responseType: 'arraybuffer'})
           .then(response => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement('a');
                 fileLink.href = fileURL;
-                fileLink.setAttribute('download', 'users.csv');
+                fileLink.setAttribute('download', 'segments.csv');
                 document.body.appendChild(fileLink);
                 fileLink.click();
                 
@@ -765,14 +749,14 @@ export default {
             console.log(errors)
           });
       },
-      exportUserTemplate(){
+      exportTemplate(){
         this.isSelectingTemplateExport = true;
-        axios.post('/api/users/export/template',{responseType: 'arraybuffer'})
+        axios.post('/api/segments/export/template',{responseType: 'arraybuffer'})
           .then(response => {
                 var fileURL = window.URL.createObjectURL(new Blob([response.data]));
                 var fileLink = document.createElement('a');
                 fileLink.href = fileURL;
-                fileLink.setAttribute('download', 'userstemplate.csv');
+                fileLink.setAttribute('download', 'segmentstemplate.csv');
                 document.body.appendChild(fileLink);
                 fileLink.click();
                 
@@ -786,13 +770,13 @@ export default {
       },
       selectAll(){
         this.allSelelected = !this.allSelelected 
-        this.Users.forEach((user) =>{
-          this.massSelelection[user.id] = this.allSelelected
+        this.Registers.forEach((register) =>{
+          this.massSelelection[register.id] = this.allSelelected
         })
         console.log(this.massSelelection)
       },
       getTrash(){
-        axios.post('api/users/gettrash/')
+        axios.post('api/segments/gettrash/')
           .then(response => {
             this.trashData = response.data
             this.trashCount = response.data.length
@@ -826,7 +810,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/users/trash/multiple', bodyFormData, {
+        axios.post('/api/segments/trash/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -858,7 +842,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/users/delete/multiple', bodyFormData, {
+        axios.post('/api/segments/delete/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

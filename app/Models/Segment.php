@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Rules extends Model
+class Segment extends Model
 {
+    protected $table = 'segment';
     protected $fillable = [
-        'rules',
+        'name',
         'status',
-        'menus',
-        'widgets',
+        'trash',
+        'delete',
     ];
     use HasFactory;
 }

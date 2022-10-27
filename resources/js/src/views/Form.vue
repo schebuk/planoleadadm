@@ -27,13 +27,32 @@
                   required
                   :rules="emailRules"
                 ></v-text-field>
-                  <v-text-field v-if="field.type == 'number'" 
-                  v-model="formreturn[field.name]"
-                    :label="field.name"
-                    type="number"
-                    required
-                    :rules="numberRules"
-                  ></v-text-field>
+                <v-text-field v-if="field.type == 'number'" 
+                v-model="formreturn[field.name]"
+                  :label="field.name"
+                  type="number"
+                  required
+                  :rules="numberRules"
+                ></v-text-field>
+                
+                <v-container
+                  class="px-0"
+                  fluid
+                  v-if="field.type == 'json'"
+                >
+                
+                <p>{{field.name}}</p>
+                <v-row>
+                    <v-col cols="2" v-for="content in field.contents" :key="content.name">
+                      <v-checkbox 
+                        :v-model="formreturn[field.name]" 
+                        :value="content.name" 
+                        :label="content.name"
+                        :rules="checkboxRules"
+                      ></v-checkbox>
+                  </v-col>
+                </v-row>
+                </v-container>
                   
                   <v-select v-if="field.type == 'related'"
                   v-model="formreturn[field.name]"
@@ -126,6 +145,9 @@
             let boolRules= [
               v => v >= 0 || 'Campo e obrigatorio'
             ]
+            let checkboxRules= [
+              v => v == 0 || 'Campo e obrigatorio'
+            ]
           let formreturn =[]
           
           if(this.registerId){
@@ -143,6 +165,12 @@
             
             this.fields.forEach((field) => {
               formreturn[field.name] = ''
+              if (field.type =='json'){
+                formreturn[field.name] = []
+                field.content.forEach((content) => {
+                  formreturn[field.name][content.name].checked = false
+                })
+              }
             })
           }
           return{
@@ -173,11 +201,15 @@
                       fieldvalues[field.name] = this.formreturn[field.name]
                     }
                     break
+                  case 'json':
+                    fieldvalues[field.name] = JSON.stringify(this.formreturn[field.name])
+                    break
                   default:
                     fieldvalues[field.name] = this.formreturn[field.name]
                     break
                 }
               })
+              console.log(this.formreturn)
               this.$emit('save', fieldvalues, this.modalname)
             }
           },

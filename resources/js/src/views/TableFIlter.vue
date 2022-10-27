@@ -36,7 +36,7 @@
                             label="Search Type"
                             v-model="tableData.searchType"
                             solo
-                            @change="getUsers"
+                            @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -48,7 +48,7 @@
                     >   
                         <v-radio-group
                             v-model="tableData.operator"solo
-                            @change="getUsers"
+                            @change="getRegisters"
                             row
                         >
                             <v-radio
@@ -86,7 +86,7 @@
                         label="Search Type"
                         v-model="tableData.searchType2"
                         solo
-                        @change="getUsers"
+                        @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -128,13 +128,13 @@
                             label="Search Type"
                             v-model="tableData.searchType"
                             solo
-                            @change="getUsers"
+                            @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
                 <v-radio-group
                     v-model="tableData.operator"solo
-                    @change="getUsers"
+                    @change="getRegisters"
                     row
                 >
                     <v-radio
@@ -171,7 +171,7 @@
                         label="Search Type"
                         v-model="tableData.searchType2"
                         solo
-                        @change="getUsers"
+                        @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -247,7 +247,7 @@
                             label="Search Type"
                             v-model="tableData.searchType"
                             solo
-                            @change="getUsers"
+                            @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -261,7 +261,7 @@
                             :items="searchOperator"
                             label="Search Type"
                             v-model="tableData.operator"solo
-                            @change="getUsers"
+                            @change="getRegisters"
                         ></v-select>
                     </v-col> 
                 </v-row>
@@ -297,7 +297,7 @@
                         label="Search Type"
                         v-model="tableData.searchType2"
                         solo
-                        @change="getUsers"
+                        @change="getRegisters"
                         ></v-select>
                     </v-col>
                 </v-row>
@@ -314,7 +314,7 @@
             mdiClockOutline,
         } from '@mdi/js'
     export default {
-        emits: ['setSearchField','getUsers'],
+        emits: ['setSearchField','getRegisters'],
         props: ['showFilterfield','column','tableData'],
         data() {
             let searchTypeItensString = ['contains','start','end','equal','notequal','greater','greaterequal','lesser','lesserequal'];
@@ -365,8 +365,8 @@
                 this.menu = false; 
                 setSearchField(column);
             },
-            getUsers(){
-                this.$emit('getUsers')
+            getRegisters(){
+                this.$emit('getRegisters')
             },
             handleFocusOut(evt,column){
                 if (!evt.currentTarget.contains(evt.relatedTarget)) {

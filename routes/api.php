@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\RulesController;
+use App\Http\Controllers\SegmentsController;
 use App\Http\Controllers\ConfigurationsController;
 
 /*
@@ -44,10 +45,45 @@ Route::post('users/import/', [UsersController::class, 'import']);
 Route::post('users/export/template', [UsersController::class, 'exportTemplate']);
 Route::post('users/export/', [UsersController::class, 'export']);
 Route::get('users/gettrash/', [UsersController::class, 'getTrash']);
-Route::get('users/{id}', [UsersController::class, 'getUserById']);
+Route::get('users/{id}', [UsersController::class, 'getById']);
+
+Route::get('segments/', [SegmentsController::class, 'index']);
+Route::post('segments/save/', [SegmentsController::class, 'save']);
+Route::post('segments/edit/multiple/', [SegmentsController::class, 'massEdit']);
+Route::post('segments/trash/multiple/', [SegmentsController::class, 'massTrash']);
+Route::post('segments/restore/multiple/', [SegmentsController::class, 'massRestore']);
+Route::post('segments/delete/multiple/', [SegmentsController::class, 'massDelete']);
+Route::post('segments/edit/', [SegmentsController::class, 'edit']);
+Route::get('segments/trash/list', [SegmentsController::class, 'getTrashList']);
+Route::get('segments/trash/{id}', [SegmentsController::class, 'trash']);
+Route::get('segments/restore/{id}', [SegmentsController::class, 'restore']);
+Route::get('segments/delete/{id}', [SegmentsController::class, 'delete']);
+Route::get('segments/status/{id}/{status}', [SegmentsController::class, 'status']);
+Route::post('segments/import/', [SegmentsController::class, 'import']);
+Route::post('segments/export/template', [SegmentsController::class, 'exportTemplate']);
+Route::post('segments/export/', [SegmentsController::class, 'export']);
+Route::get('segments/gettrash/', [SegmentsController::class, 'getTrash']);
+Route::get('segments/{id}', [SegmentsController::class, 'getById']);
+
+Route::get('rules/', [RulesController::class, 'index']);
+Route::post('rules/save/', [RulesController::class, 'save']);
+Route::post('rules/edit/multiple/', [RulesController::class, 'massEdit']);
+Route::post('rules/trash/multiple/', [RulesController::class, 'massTrash']);
+Route::post('rules/restore/multiple/', [RulesController::class, 'massRestore']);
+Route::post('rules/delete/multiple/', [RulesController::class, 'massDelete']);
+Route::post('rules/edit/', [RulesController::class, 'edit']);
+Route::get('rules/trash/list', [RulesController::class, 'getTrashList']);
+Route::get('rules/trash/{id}', [RulesController::class, 'trash']);
+Route::get('rules/restore/{id}', [RulesController::class, 'restore']);
+Route::get('rules/delete/{id}', [RulesController::class, 'delete']);
+Route::get('rules/status/{id}/{status}', [RulesController::class, 'status']);
+Route::post('rules/import/', [RulesController::class, 'import']);
+Route::post('rules/export/template', [RulesController::class, 'exportTemplate']);
+Route::post('rules/export/', [RulesController::class, 'export']);
+Route::get('rules/gettrash/', [RulesController::class, 'getTrash']);
+Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);
+Route::get('rules/{id}', [RulesController::class, 'getById']);
 
 Route::post('config/columns/save/', [ConfigurationsController::class, 'columnsSave']);
 Route::post('config/columns/{page}', [ConfigurationsController::class, 'columns']);
 Route::get('config/{table}', [ConfigurationsController::class, 'getColumns']);
-
-Route::get('rules/getselect/{description}', [RulesController::class, 'getSelect']);

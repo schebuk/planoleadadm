@@ -1,5 +1,5 @@
 <template>
-  <div class="Users">
+  <div class="Segments">
     <v-snackbar
       v-model="snackbar"
     >
@@ -83,12 +83,12 @@
           rounded
           color="primary"
           dark
-          :to="{name:'users'}"
+          :to="{name:'rules'}"
         >     
             <v-icon 
               v-text="mdiArrowLeft" 
             ></v-icon> 
-            Usuarios
+            Regras
                           
         </v-btn>
       </v-col>
@@ -122,7 +122,7 @@
               width="30"
               v-model="tableData.length" 
               label="Register per page"
-              @change="getUsers()" 
+              @change="getRegisters()" 
               :items="perPage"
             ></v-select>
           </v-col>
@@ -135,7 +135,7 @@
           >  
             <Pagination 
               :data="pagination.data" 
-              @pagination-change-page="getUsers" 
+              @pagination-change-page="getRegisters" 
               :limit="3"
               :show-disabled="true"
             >
@@ -157,7 +157,7 @@
           :column="column" 
           :tableData="tableData" 
           @setSearchField="setSearchField" 
-          @getUsers="getUsers"
+          @getRegisters="getRegisters"
         ></TableFilter>
       </li>
     </ul>
@@ -166,7 +166,7 @@
       :sortKey="sortKey" 
       :sortOrders="sortOrders" 
       :allSelelected="allSelelected"
-      :registers="Users"
+      :registers="Registers"
       :massSelelection="massSelelection"
       :modal="modal"
       type="trash"
@@ -209,7 +209,7 @@
           >  
             <Pagination 
               :data="pagination.data" 
-              @pagination-change-page="getUsers" 
+              @pagination-change-page="getRegisters" 
               :limit="3"
               :show-disabled="true"
             >
@@ -247,7 +247,7 @@ export default {
       'Pagination': LaravelVuePagination,
     },
     created() {
-        this.getUsers();
+        this.getRegisters();
         this.getColumns();
     },
     setup() {
@@ -271,7 +271,7 @@ export default {
         {action:'delete',text:'Deletar Permanentemente'}
       ]
       return {
-        Users: [],
+        Registers: [],
         columns: [],
         modal:modal,
         sortKey: 'id',
@@ -302,16 +302,16 @@ export default {
       }
     },
     methods: {
-      getUsers(page = 1,url = '/api/users/trash/list/?page=') {
+      getRegisters(page = 1,url = '/api/rules/trash/list/?page=') {
         this.tableData.draw++;
         axios.get(url + page, {params: this.tableData})
           .then(response => {
             let data = response.data;
             let countRegisters = 0
             if (this.tableData.draw == data.draw) {
-              this.Users = data.data.data;
+              this.Registers = data.data.data;
               this.allSelelected = false
-              this.Users.forEach((user, index) =>{
+              this.Registers.forEach((user, index) =>{
                 this.modal.restoredialog[user.id]= false
                 this.modal.deletedialog[user.id]= false
                 if(!this.massSelelection[user.id]){
@@ -334,18 +334,16 @@ export default {
           });
       },
       getColumns(){
-        axios.post('/api/config/columns/users',{userId:1})
+        axios.post('/api/config/columns/rules',{userId:1})
           .then(response => {
             if (response.data.data){
               this.columns = response.data.data
             }
             else{
               this.columns = [
-                {"name": "name", "type": "varchar(255)", "label": "name"}, 
-                {"name": "email", "type": "varchar(255)", "label": "email"}, 
-                {"name": "user", "type": "varchar(255)", "label": "user"}, 
-                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
-                {"name": "regraId", "type": "int(11)", "label": "regraId"}, 
+                {"name": "rules", "type": "varchar(255)", "label": "rules"}, 
+                {"name": "menus", "type": "json", "label": "menus"}, 
+                {"name": "widgets", "type": "json", "label": "widgets"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]
@@ -381,7 +379,7 @@ export default {
           this.sortOrders[key] = this.sortOrders[key] == 0?  1 : this.sortOrders[key] * -1;
           this.tableData.column = key;
           this.tableData.dir = this.sortOrders[key] === 1 ? 'asc' : 'desc';
-          this.getUsers();
+          this.getRegisters();
       },
       getIndex(array, key, value) {
           return array.findIndex(i => i[key] == value)
@@ -393,7 +391,7 @@ export default {
         this.tableData.operator = val.operator;
         this.tableData.searchType2 = val.type2; 
         this.tableData.search2 = val.search2;
-        this.getUsers()
+        this.getRegisters()
       },
       showFilter(key){
         console.log(this.showFilterfield[key])
@@ -436,7 +434,7 @@ export default {
         }
       },
       restore(id){
-        axios.get('/api/users/restore/'+id)
+        axios.get('/api/rules/restore/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -448,10 +446,10 @@ export default {
             console.log(errors)
           })
         this.fechadialogo('restoredialog',id)
-        this.getUsers()
+        this.getRegisters()
       },      
       deleteregister(id){
-        axios.get('/api/users/delete/'+id)
+        axios.get('/api/rules/delete/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -463,7 +461,7 @@ export default {
             console.log(errors)
           })
         this.fechadialogo('deletedialog',id)
-        this.getUsers()
+        this.getRegisters()
       },
       abredialogo(modal,id){
         this.$set(this.modal[modal],id , true) 
@@ -473,7 +471,7 @@ export default {
       },
       selectAll(){
         this.allSelelected = !this.allSelelected 
-        this.Users.forEach((user) =>{
+        this.re.forEach((user) =>{
           this.massSelelection[user.id] = this.allSelelected
         })
         console.log(this.massSelelection)
@@ -498,7 +496,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/users/restore/multiple', bodyFormData, {
+        axios.post('/api/rules/restore/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -518,7 +516,7 @@ export default {
         this.selectedIds = []
         this.modal.bulkrestore = false
         this.bulkActionType = 'default'
-        this.getUsers()
+        this.getRegisters()
 
       },
       deleteBulkRegister(){
@@ -530,7 +528,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/users/delete/multiple', bodyFormData, {
+        axios.post('/api/rules/delete/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -548,7 +546,7 @@ export default {
         this.selectedIds = []
         this.modal.bulkdelete = false
         this.bulkActionType = 'default'
-        this.getUsers()
+        this.getRegisters()
       }
     }
 };

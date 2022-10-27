@@ -9,9 +9,10 @@ use App\Imports\UsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
+use App\Models\Client;
 use App\Models\User;
 
-class UsersController extends Controller
+class ClientsController extends Controller
 {
     public function index(Request $request)
     {
@@ -235,7 +236,7 @@ class UsersController extends Controller
         return ['data' => $users, 'draw' => $request->input('draw')];
     }
     
-    public function getById(Request $request,$id)
+    public function getUserById(Request $request,$id)
     {
         return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
             ->where('id','=',$id)

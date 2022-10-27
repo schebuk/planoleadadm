@@ -3,19 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\UsersExport;
-use App\Exports\UsersExportTemplate;
-use App\Imports\UsersImport;
+use App\Exports\SegmentsExport;
+use App\Exports\SegmentsExportTemplate;
+use App\Imports\SegmentsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\User;
+use App\Models\Segment;
 
-class UsersController extends Controller
+class SegmentsController extends Controller
 {
     public function index(Request $request)
     {
-        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
+        $columns = ['id', 'name','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -90,7 +90,7 @@ class UsersController extends Controller
                 break;
         }
 
-        $query =  User::orderBy($column, $dir);
+        $query =  Segment::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -116,17 +116,16 @@ class UsersController extends Controller
             }
         }
 
-        $users = $query
+        $registers = $query
             ->where('trash','=',0)
             ->where('delete','=',0)
-            ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $users, 'draw' => $request->input('draw')];
+        return ['data' => $registers, 'draw' => $request->input('draw')];
     }
 
     public function getTrashList(Request $request)
     {
-        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
+        $columns = ['id', 'name','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -201,7 +200,7 @@ class UsersController extends Controller
                 break;
         }
 
-        $query =  User::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
+        $query =  Segment::select('id', 'name','status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -227,39 +226,33 @@ class UsersController extends Controller
             }
         }
 
-        $users = $query
+        $registers = $query
             ->where('trash','=',1)
             ->where('delete','=',0)
-            ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $users, 'draw' => $request->input('draw')];
+        return ['data' => $registers, 'draw' => $request->input('draw')];
     }
     
     public function getById(Request $request,$id)
     {
-        return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
+        return Segment::select('id', 'name','status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $user = new User([
+        $registers = new Segment([
             'name' => $request->name,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'user' => $request->user,
-            'regraId' => $request->regraId,
             'status' => $request->status,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
-            'password' => bcrypt('123456'),
             'trash' => 0,
             'delete' => 0
         ]);
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
-            'message' => 'Usuario editado com sucesso'
+            'message' => 'Segmento editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -276,19 +269,15 @@ class UsersController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $user = User::where('id','=',$request->id)->first();
+        $registers = Segment::where('id','=',$request->id)->first();
           
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->telephone = $request->telephone;
-        $user->user = $request->user;
-        $user->regraId = $request->regraId;
-        $user->status = $request->status;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->name = $request->name;;
+        $registers->status = $request->status;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
-            'message' => 'Usuario editado com sucesso'
+            'message' => 'Segmento editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -296,14 +285,14 @@ class UsersController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $registers = Segment::where('id','=',$id)->first();
           
-        $user->trash = 1;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->trash = 1;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
         if($user->save()){
             return response()->json([
-            'message' => 'Usuario mandado para lixeira com sucesso'
+            'message' => 'Segmento mandado para lixeira com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -311,14 +300,14 @@ class UsersController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $registers = Segment::where('id','=',$id)->first();
           
-        $user->trash = 0;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->trash = 0;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
-            'message' => 'Usuario Restaurado com sucesso'
+            'message' => 'Segmento Restaurado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -326,14 +315,14 @@ class UsersController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $registers = Segment::where('id','=',$id)->first();
           
-        $user->delete = 1;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->delete = 1;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
-            'message' => 'Usuario deletado com sucesso'
+            'message' => 'Segmento deletado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -341,14 +330,14 @@ class UsersController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $user = User::where('id','=',$id)->first();
+        $registers = Segment::where('id','=',$id)->first();
           
-        $user->status = $status;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->status = $status;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
-            'message' => 'alterado status do Usuario com sucesso'
+            'message' => 'alterado status do Segmento com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -359,7 +348,7 @@ class UsersController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new UsersImport,$request->file('file'));
+        Excel::import(new SegmentsImport,$request->file('file'));
            
         
         return response()->json([
@@ -368,36 +357,30 @@ class UsersController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new UsersExport, 'users.csv');
+        return Excel::download(new SegmentsExport, 'segments.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new UsersExportTemplate(), 'userstemplate.csv');
+        return Excel::download(new SegmentsExportTemplate(), 'segmentstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $users = User::select('id', 'name', 'email', 'user', 'telephone')
+        $registers = Segment::select('id', 'name')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
             ->get();
-        return $users;
+        return $registers;
     }
     public function massEdit(Request $request){
         $ids = explode(',',$request->ids);
         $update = [];
-        if ($request->regraId){
-            $update["regraId"] = $request->regraId;
-        }
-        if ($request->status != ''){
-            $update["status"] = $request->status;
-        }
-        
+
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $users = User::whereIn('id',$ids)
+        $registers = Segment::whereIn('id',$ids)
             ->update($update);
         
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros editados com sucesso'
             ], 200);
@@ -409,13 +392,13 @@ class UsersController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $registers = Segment::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros mandados para lixeira com sucesso'
             ], 200);
@@ -426,13 +409,13 @@ class UsersController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $registers = Segment::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros restaurados com sucesso'
             ], 200);
@@ -443,13 +426,13 @@ class UsersController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $registers = Segment::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros deletados com sucesso'
             ], 200);
