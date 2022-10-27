@@ -17,6 +17,13 @@ class UsersImport implements ToModel, WithHeadingRow
     */
     public function model(array $row)
     {
+        
+        $exists = User::where('email',$row['email'])->orWhere('user',$row['user'])->first();
+        if ($exists) {
+            //LOGIC HERE TO UPDATE
+            return null;
+        }
+        
         return new User([
             "name" => $row['name'],
             "email" => $row['email'],

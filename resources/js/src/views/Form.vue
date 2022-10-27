@@ -4,52 +4,70 @@
           <span class="text-h5">{{ title }}</span>
         </v-card-title>
         <v-card-text>
-          <v-container>
-            <v-row v-for="field in fields" :key="field.name">
-              <v-col
-                cols="12"
-                sm="12"
-                md="12"
-              >
-                <v-text-field v-if="field.type == 'text'"
+          <v-container>           
+              <v-form
+              ref="form"
+              lazy-validation
+            >
+              <v-row v-for="field in fields" :key="field.name">
+                <v-col
+                  cols="12"
+                  sm="12"
+                  md="12"
+                >
+                <v-text-field v-if="field.type == 'text' && field.name != 'email'"
                   v-model="formreturn[field.name]"
                   :label="field.name"
                   required
+                  :rules="textRules"
                 ></v-text-field>
-                <v-text-field v-if="field.type == 'number'" 
-                v-model="formreturn[field.name]"
+                <v-text-field v-if="field.type == 'text' && field.name == 'email'"
+                  v-model="formreturn[field.name]"
                   :label="field.name"
-                  type="number"
                   required
+                  :rules="emailRules"
                 ></v-text-field>
-                
-                <v-select v-if="field.type == 'related'"
-                v-model="formreturn[field.name]"
-                  :items="related[field.name]"
-                  :label="field.name"
-                  item-text="name"
-                  item-value="id"
-                  return-object
-                  required
-                ></v-select>
+                  <v-text-field v-if="field.type == 'number'" 
+                  v-model="formreturn[field.name]"
+                    :label="field.name"
+                    type="number"
+                    required
+                    :rules="numberRules"
+                  ></v-text-field>
+                  
+                  <v-select v-if="field.type == 'related'"
+                  v-model="formreturn[field.name]"
+                    :items="related[field.name]"
+                    :label="field.name"
+                    item-text="name"
+                    item-value="id"
+                    return-object
+                    required
+                    :rules="relatedRules"
+                  ></v-select>
 
-                
-                <v-radio-group  v-if="field.type == 'bool'" 
-                v-model="formreturn[field.name]">
-                  <template v-slot:label>
-                    <div>{{field.name}}</div>
-                  </template>
-                    <v-radio
-                      label="Deactive"
-                      :value="0"
-                    ></v-radio>
-                    <v-radio
-                      label="Active"
-                      :value="1"
-                    ></v-radio>
-                </v-radio-group>
-              </v-col>
-            </v-row>
+                  
+                  <v-radio-group  
+                    v-if="field.type == 'bool'" 
+                    v-model="formreturn[field.name]"
+                    :rules="boolRules"
+                    required
+                  >
+                    <template v-slot:label>
+                      <div>{{field.name}}</div>
+                    </template>
+                      <v-radio
+                        label="Deactive"
+                        :value="0"
+                      ></v-radio>
+                      <v-radio
+                        label="Active"
+                        :value="1"
+                      ></v-radio>
+                  </v-radio-group>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-container>
         </v-card-text>
         <v-card-actions>
@@ -94,6 +112,20 @@
             this.checkfields();
         },
         data() {
+            let textRules= [
+              v => !!v || 'Campo e obrigatorio',
+            ]
+            let emailRules= [
+              v => !!v || 'E-mail é obrigatorio',
+              v => /.+@.+\..+/.test(v) || 'E-mail invalido',
+            ]
+            let relatedRules=[v => !!v || 'Campo e obrigatorio']
+            let numberRules= [
+              v => !!v || 'Campo e obrigatorio',
+            ]
+            let boolRules= [
+              v => v >= 0 || 'Campo e obrigatorio'
+            ]
           let formreturn =[]
           
           if(this.registerId){
@@ -116,6 +148,11 @@
           return{
             related: [],
             formreturn: formreturn,
+            textRules:textRules,
+            emailRules:emailRules,
+            relatedRules:relatedRules,
+            numberRules:numberRules,
+            boolRules:boolRules,
           }
         },
         methods: {
@@ -123,24 +160,26 @@
             this.$emit('closemodal', this.modalname)
           },
           save(){
-            let fieldvalues = []
-            if (this.registerId){
-              fieldvalues['id'] = this.registerId
-            }
-            this.fields.forEach((field) => {
-              switch (field.type){
-                case 'related':              
-                  fieldvalues[field.name] = this.formreturn[field.name].id
-                  if (!this.formreturn[field.name].id){
-                    fieldvalues[field.name] = this.formreturn[field.name]
-                  }
-                  break
-                default:
-                  fieldvalues[field.name] = this.formreturn[field.name]
-                  break
+           if(this.$refs.form.validate()){
+              let fieldvalues = []
+              if (this.registerId){
+                fieldvalues['id'] = this.registerId
               }
-            })
-            this.$emit('save', fieldvalues, this.modalname)
+              this.fields.forEach((field) => {
+                switch (field.type){
+                  case 'related':              
+                    fieldvalues[field.name] = this.formreturn[field.name].id
+                    if (!this.formreturn[field.name].id){
+                      fieldvalues[field.name] = this.formreturn[field.name]
+                    }
+                    break
+                  default:
+                    fieldvalues[field.name] = this.formreturn[field.name]
+                    break
+                }
+              })
+              this.$emit('save', fieldvalues, this.modalname)
+            }
           },
           checkfields(){
             this.fields.forEach((field) => {

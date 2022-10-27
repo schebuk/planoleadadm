@@ -494,12 +494,12 @@ export default {
             let sort = []
             let filter= []
             this.columns.forEach((column) => {
-              sort[column.name] = 0
+              this.sortOrders[column.name] = 0
               filter[column.name] = false
             });
             
-            this.$set(this.sortOrders, sort)
           
+            console.log(this.sortOrders)
             this.$set(this.showFilterfield, filter)
             
           })
@@ -521,20 +521,24 @@ export default {
             if (column.name != key)
               this.sortOrders[column.name] = 0;
           });
+          
           this.tableData.column = key;
           switch (this.sortOrders[key]){
             case 0:
               this.sortOrders[key] = 1 
+              this.tableData.dir = 'asc'
               break 
             case 1:
               this.sortOrders[key] =  -1
+              this.tableData.dir = 'desc'
               break
             case -1:
               this.sortOrders[key] = 0
               this.tableData.column = '';
+              this.tableData.dir = ''
             break
           }
-          this.tableData.dir = this.sortOrders[key] === 1 ? 'asc' : 'desc';
+          
           this.getUsers();
       },
       getIndex(array, key, value) {

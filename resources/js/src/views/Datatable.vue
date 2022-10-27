@@ -10,7 +10,7 @@
                 </th>
                 <th v-for="column in columns" :key="column.name" :id="'th'+column.name"
                     style="cursor:pointer;">
-                        <a href="javascript:void(0);" @click="$emit('sort', column.name)" style="text-decoration:none; color:black;
+                        <a href="javascript:void(0);" @click="sort(column.name)" style="text-decoration:none; color:black;
                         text-transform: capitalize;">
                             {{column.label}}
                             <v-icon wi v-text="mdiSort" v-if="sortOrders[column.name] == 0"></v-icon>
@@ -150,7 +150,7 @@ import Form from './Form.vue';
                 mdiTrashCan,
             }
         },
-        emits: ['setSearchField','getUsers'],
+        emits: ['setSearchField','getUsers','sort'],
         props:['columns','sortKey', 'sortOrders','allSelelected','registers','massSelelection','fields','formeditUrl','modal'],
         methods: {
           closeModal(modalname){
@@ -159,6 +159,9 @@ import Form from './Form.vue';
           save(fieldvalues,modalname){
             this.$emit('save', fieldvalues, modalname)
           },
+          sort(column){
+            this.$emit('sort', column)
+          }
         },
     }
 </script>
