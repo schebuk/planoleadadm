@@ -11,6 +11,18 @@ import Segments from '@/views/Segments.vue'
 import SegmentsTrash from '@/views/SegmentsTrash.vue'
 import Rules from '@/views/Rules.vue'
 import RulesTrash from '@/views/RulesTrash.vue'
+import Quality from '@/views/Quality.vue'
+import QualityTrash from '@/views/QualityTrash.vue'
+import Ads from '@/views/Ads.vue'
+import AdsTrash from '@/views/AdsTrash.vue'
+import Integrants from '@/views/Integrants.vue'
+import IntegrantsTrash from '@/views/IntegrantsTrash.vue'
+import Clients from '@/views/Clients.vue'
+import ClientsTrash from '@/views/ClientsTrash.vue'
+import ClientsUser from '@/views/ClientsUser.vue'
+import ClientsUserTrash from '@/views/ClientsUserTrash.vue'
+import Leads from '@/views/Leads.vue'
+import LeadsTrash from '@/views/LeadsTrash.vue'
 import Error from '@/views/Error.vue'
 import Configurations from '@/views/Configurations.vue'
 import AccountSettings from '@/views/pages/account-settings/AccountSettings.vue'
@@ -77,6 +89,102 @@ const routes = [
     path: '/rules/trash',
     name: 'rules-trash',
     component: RulesTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/quality',
+    name: 'quality',
+    component: Quality,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/quality/trash',
+    name: 'quality-trash',
+    component: QualityTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/ads',
+    name: 'ads',
+    component: Ads,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/ads/trash',
+    name: 'ads-trash',
+    component: AdsTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/integrants',
+    name: 'integrants',
+    component: Integrants,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/integrants/trash',
+    name: 'integrants-trash',
+    component: IntegrantsTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/clients',
+    name: 'clients',
+    component: Clients,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/clients/trash',
+    name: 'clients-trash',
+    component: ClientsTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/clients-user',
+    name: 'clients-user',
+    component: ClientsUser,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/clients-user/trash',
+    name: 'clients-user-trash',
+    component: ClientsUserTrash,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/leads',
+    name: 'leads',
+    component: Leads,
+    meta:{
+      requiresAuth: true,
+    },
+  },
+  {
+    path: '/leads/trash',
+    name: 'leads-trash',
+    component: LeadsTrash,
     meta:{
       requiresAuth: true,
     },

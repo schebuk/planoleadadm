@@ -46,6 +46,9 @@
                           {{register[column.name]==0?'Desativado':'ativado'}}
                         </span>
                     </span>
+                    <span v-else-if="column.type == 'timestamp'">
+                        {{register[column.name] | formatDate }}
+                    </span>
                     <span v-else>
                         {{register[column.name]}}
                     </span>
@@ -228,6 +231,7 @@ import Form from './Form.vue';
         mdiTrashCan,
         mdiFileRestore,
     } from '@mdi/js'
+
     export default{
         components: { 
             Form:Form,

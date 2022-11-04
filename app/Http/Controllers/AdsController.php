@@ -3,27 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\RulesExport;
-use App\Exports\RulesExportTemplate;
-use App\Imports\RulesImport;
+use App\Exports\AdsExport;
+use App\Exports\AdsExportTemplate;
+use App\Imports\AdsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Rules;
+use App\Models\Ads;
 
-class RulesController extends Controller
+class AdsController extends Controller
 {
-    public function getSelect(Request $request, $description)
-    {
-    	$rules = Rules::select('id', $description . ' AS name')->get();
-        
-        return ['data' => $rules];
-    	
-    }
-
     public function index(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['name','price','codChannel', 'status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -98,7 +90,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::orderBy($column, $dir);
+        $query =  Ads::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -133,7 +125,7 @@ class RulesController extends Controller
 
     public function getTrashList(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['name','price','codChannel', 'status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -208,7 +200,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::select('id', 'rules','status','menus','widgets','created_at')->orderBy($column, $dir);
+        $query =  Ads::select('name','price','codChannel', 'status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -243,18 +235,18 @@ class RulesController extends Controller
     
     public function getById(Request $request,$id)
     {
-        return Rules::select('id', 'rules','status','menus','widgets','created_at')
+        return Ads::select('name','price','codChannel', 'status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $registers = new Rules([
-            'rules' => $request->rules,
+        $registers = new Ads([
+            'name' => $request->name,
             'status' => $request->status,
-            'menus' => $request->menus,
-            'widgets' => $request->widgets,
+            'price' => $request->price,
+            'codChannel' => $request->codChannel,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
             'trash' => 0,
@@ -262,7 +254,7 @@ class RulesController extends Controller
         ]);
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Ads cadastrado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -279,17 +271,17 @@ class RulesController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $registers = Rules::where('id','=',$request->id)->first();
+        $registers = Ads::where('id','=',$request->id)->first();
           
         $registers->name = $request->name;
-        $registers->menus = $request->menus;
-        $registers->widgets = $request->widgets;
+        $registers->price = $request->price;
+        $registers->codChannel = $request->codChannel;
         $registers->status = $request->status;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Ads editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -297,14 +289,14 @@ class RulesController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Ads::where('id','=',$id)->first();
           
         $registers->trash = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso mandado para lixeira com sucesso'
+            'message' => 'Ads mandado para lixeira com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -312,14 +304,14 @@ class RulesController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Ads::where('id','=',$id)->first();
           
         $registers->trash = 0;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso Restaurado com sucesso'
+            'message' => 'Adso Restaurado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -327,14 +319,14 @@ class RulesController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Ads::where('id','=',$id)->first();
           
         $registers->delete = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso deletado com sucesso'
+            'message' => 'Adso deletado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -342,14 +334,14 @@ class RulesController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Ads::where('id','=',$id)->first();
           
         $registers->status = $status;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'alterado status do Ruleso com sucesso'
+            'message' => 'alterado status do Adso com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -360,7 +352,7 @@ class RulesController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new RulesImport,$request->file('file'));
+        Excel::import(new AdsImport,$request->file('file'));
            
         
         return response()->json([
@@ -369,15 +361,15 @@ class RulesController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new RulessExport, 'segments.csv');
+        return Excel::download(new AdsExport, 'qualitys.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new RulessExportTemplate(), 'segmentstemplate.csv');
+        return Excel::download(new AdsExportTemplate(), 'qualitystemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $registers = Rules::select('id', 'rules')
+        $registers = Ads::select('id', 'name')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
@@ -389,7 +381,7 @@ class RulesController extends Controller
         $update = [];
 
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Ads::whereIn('id',$ids)
             ->update($update);
         
         if($registers){
@@ -404,7 +396,7 @@ class RulesController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Ads::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -421,7 +413,7 @@ class RulesController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Ads::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -438,7 +430,7 @@ class RulesController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Ads::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")

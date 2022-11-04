@@ -24,7 +24,13 @@
       <nav-menu-link title="Dashboard" :to="{ name: 'dashboard' }" :icon="icons.mdiHomeOutline"></nav-menu-link>
       <nav-menu-link title="Usuarios" :to="{ name: 'users' }" :icon="icons.mdiAccountMultiple"></nav-menu-link>
       <nav-menu-link title="Segmentos" :to="{ name: 'segments' }" :icon="icons.mdiDomain"></nav-menu-link>
-      <nav-menu-link title="Regras" :to="{ name: 'rules' }" :icon="icons.mdiClipboardList"></nav-menu-link>       
+      <nav-menu-link title="Regras" :to="{ name: 'rules' }" :icon="icons.mdiClipboardList"></nav-menu-link>    
+      <nav-menu-link title="Qualidade" :to="{ name: 'quality' }" :icon="icons.mdiFilePercent"></nav-menu-link>  
+      <nav-menu-link title="Anuncios" :to="{ name: 'ads' }" :icon="icons.mdiBookOpen"></nav-menu-link>   
+      <nav-menu-link title="Integrantes" :to="{ name: 'integrants' }" :icon="icons.mdiAccountMultiplePlusOutline "></nav-menu-link>    
+      <nav-menu-link title="Clientes" :to="{ name: 'clients' }" :icon="icons.mdiAccountCash "></nav-menu-link>   
+      <nav-menu-link title="Clientes-Usuarios" :to="{ name: 'clients-user' }" :icon="icons.mdiAccountBoxMultiple "></nav-menu-link>  
+      <nav-menu-link title="Leads" :to="{ name: 'leads' }" :icon="icons.mdiTable "></nav-menu-link>       
       <nav-menu-link title="Configurações" :to="{ name: 'configs' }" :icon="icons.mdiCog"></nav-menu-link>
     </v-list>
   </v-navigation-drawer>
@@ -37,7 +43,6 @@ import {
   mdiAlphaTBoxOutline,
   mdiEyeOutline,
   mdiCreditCardOutline,
-  mdiTable,
   mdiFileOutline,
   mdiFormSelect,
   mdiAccountCogOutline,
@@ -45,6 +50,12 @@ import {
   mdiCog,
   mdiDomain,
   mdiClipboardList,
+  mdiFilePercent,
+  mdiBookOpen,
+  mdiAccountMultiplePlusOutline,
+  mdiAccountCash,
+  mdiAccountBoxMultiple,
+  mdiTable,
 } from '@mdi/js'
 import NavMenuSectionTitle from './components/NavMenuSectionTitle.vue'
 import NavMenuGroup from './components/NavMenuGroup.vue'
@@ -69,7 +80,6 @@ export default {
         mdiAlphaTBoxOutline,
         mdiEyeOutline,
         mdiCreditCardOutline,
-        mdiTable,
         mdiFileOutline,
         mdiFormSelect,
         mdiAccountCogOutline,
@@ -77,6 +87,12 @@ export default {
         mdiCog,
         mdiDomain,
         mdiClipboardList,
+        mdiFilePercent,
+        mdiBookOpen,
+        mdiAccountMultiplePlusOutline,
+        mdiAccountCash,
+        mdiAccountBoxMultiple,
+        mdiTable,
       },
     }
   },

@@ -3,27 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\RulesExport;
-use App\Exports\RulesExportTemplate;
-use App\Imports\RulesImport;
+use App\Exports\ClientsUsersExport;
+use App\Exports\ClientsUsersExportTemplate;
+use App\Imports\ClientsUsersImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Rules;
+use App\Models\Client;
+use App\Models\ClientsUser;
 
-class RulesController extends Controller
+class ClientsClientsUserController extends Controller
 {
-    public function getSelect(Request $request, $description)
-    {
-    	$rules = Rules::select('id', $description . ' AS name')->get();
-        
-        return ['data' => $rules];
-    	
-    }
-
     public function index(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -98,7 +91,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::orderBy($column, $dir);
+        $query =  ClientsUser::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -124,16 +117,17 @@ class RulesController extends Controller
             }
         }
 
-        $registers = $query
+        $users = $query
             ->where('trash','=',0)
             ->where('delete','=',0)
+            ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $registers, 'draw' => $request->input('draw')];
+        return ['data' => $users, 'draw' => $request->input('draw')];
     }
 
     public function getTrashList(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -208,7 +202,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::select('id', 'rules','status','menus','widgets','created_at')->orderBy($column, $dir);
+        $query =  ClientsUser::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -234,35 +228,39 @@ class RulesController extends Controller
             }
         }
 
-        $registers = $query
+        $users = $query
             ->where('trash','=',1)
             ->where('delete','=',0)
+            ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $registers, 'draw' => $request->input('draw')];
+        return ['data' => $users, 'draw' => $request->input('draw')];
     }
     
     public function getById(Request $request,$id)
     {
-        return Rules::select('id', 'rules','status','menus','widgets','created_at')
+        return ClientsUser::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $registers = new Rules([
-            'rules' => $request->rules,
+        $user = new ClientsUser([
+            'name' => $request->name,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'user' => $request->user,
+            'regraId' => $request->regraId,
             'status' => $request->status,
-            'menus' => $request->menus,
-            'widgets' => $request->widgets,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
+            'password' => bcrypt('123456'),
             'trash' => 0,
             'delete' => 0
         ]);
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Usuario editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -279,17 +277,19 @@ class RulesController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $registers = Rules::where('id','=',$request->id)->first();
+        $user = ClientsUser::where('id','=',$request->id)->first();
           
-        $registers->name = $request->name;
-        $registers->menus = $request->menus;
-        $registers->widgets = $request->widgets;
-        $registers->status = $request->status;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->telephone = $request->telephone;
+        $user->user = $request->user;
+        $user->regraId = $request->regraId;
+        $user->status = $request->status;
+        $user->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Usuario editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -297,14 +297,14 @@ class RulesController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $user = ClientsUser::where('id','=',$id)->first();
           
-        $registers->trash = 1;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $user->trash = 1;
+        $user->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso mandado para lixeira com sucesso'
+            'message' => 'Usuario mandado para lixeira com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -312,14 +312,14 @@ class RulesController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $user = ClientsUser::where('id','=',$id)->first();
           
-        $registers->trash = 0;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $user->trash = 0;
+        $user->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso Restaurado com sucesso'
+            'message' => 'Usuario Restaurado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -327,14 +327,14 @@ class RulesController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $user = ClientsUser::where('id','=',$id)->first();
           
-        $registers->delete = 1;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $user->delete = 1;
+        $user->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso deletado com sucesso'
+            'message' => 'Usuario deletado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -342,14 +342,14 @@ class RulesController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $user = ClientsUser::where('id','=',$id)->first();
           
-        $registers->status = $status;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $user->status = $status;
+        $user->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'alterado status do Ruleso com sucesso'
+            'message' => 'alterado status do Usuario com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -360,7 +360,7 @@ class RulesController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new RulesImport,$request->file('file'));
+        Excel::import(new ClientsUsersImport,$request->file('file'));
            
         
         return response()->json([
@@ -369,30 +369,36 @@ class RulesController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new RulessExport, 'segments.csv');
+        return Excel::download(new ClientsUsersExport, 'users.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new RulessExportTemplate(), 'segmentstemplate.csv');
+        return Excel::download(new ClientsUsersExportTemplate(), 'userstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $registers = Rules::select('id', 'rules')
+        $users = ClientsUser::select('id', 'name', 'email', 'user', 'telephone')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
             ->get();
-        return $registers;
+        return $users;
     }
     public function massEdit(Request $request){
         $ids = explode(',',$request->ids);
         $update = [];
-
+        if ($request->regraId){
+            $update["regraId"] = $request->regraId;
+        }
+        if ($request->status != ''){
+            $update["status"] = $request->status;
+        }
+        
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $registers = Rules::whereIn('id',$ids)
+        $users = ClientsUser::whereIn('id',$ids)
             ->update($update);
         
-        if($registers){
+        if($users){
             return response()->json([
             'message' => count($ids).' Registros editados com sucesso'
             ], 200);
@@ -404,13 +410,13 @@ class RulesController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $users = ClientsUser::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($registers){
+        if($users){
             return response()->json([
             'message' => count($ids).' Registros mandados para lixeira com sucesso'
             ], 200);
@@ -421,13 +427,13 @@ class RulesController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $users = ClientsUser::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($registers){
+        if($users){
             return response()->json([
             'message' => count($ids).' Registros restaurados com sucesso'
             ], 200);
@@ -438,13 +444,13 @@ class RulesController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $users = ClientsUser::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($registers){
+        if($users){
             return response()->json([
             'message' => count($ids).' Registros deletados com sucesso'
             ], 200);

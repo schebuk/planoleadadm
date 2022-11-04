@@ -1,5 +1,5 @@
 <template>
-    <div v-if="column.type == 'varchar(255)'">
+    <div v-if="column.type == 'varchar(255)' || column.type == 'json'">
         <div 
             class="tableFilters" 
             v-if="showFilterfield[column.name]" 

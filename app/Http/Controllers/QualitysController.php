@@ -3,27 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\RulesExport;
-use App\Exports\RulesExportTemplate;
-use App\Imports\RulesImport;
+use App\Exports\QualitysExport;
+use App\Exports\QualitysExportTemplate;
+use App\Imports\QualitysImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Rules;
+use App\Models\Qualitys;
 
-class RulesController extends Controller
+class QualitysController extends Controller
 {
-    public function getSelect(Request $request, $description)
-    {
-    	$rules = Rules::select('id', $description . ' AS name')->get();
-        
-        return ['data' => $rules];
-    	
-    }
-
     public function index(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['id', 'name','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -98,7 +90,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::orderBy($column, $dir);
+        $query =  Qualitys::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -133,7 +125,7 @@ class RulesController extends Controller
 
     public function getTrashList(Request $request)
     {
-        $columns = ['id', 'rules','status','menus','widgets','created_at'];
+        $columns = ['id', 'name','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -208,7 +200,7 @@ class RulesController extends Controller
                 break;
         }
 
-        $query =  Rules::select('id', 'rules','status','menus','widgets','created_at')->orderBy($column, $dir);
+        $query =  Qualitys::select('id', 'name','status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -243,18 +235,16 @@ class RulesController extends Controller
     
     public function getById(Request $request,$id)
     {
-        return Rules::select('id', 'rules','status','menus','widgets','created_at')
+        return Qualitys::select('id', 'name','status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $registers = new Rules([
-            'rules' => $request->rules,
+        $registers = new Qualitys([
+            'name' => $request->name,
             'status' => $request->status,
-            'menus' => $request->menus,
-            'widgets' => $request->widgets,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
             'trash' => 0,
@@ -262,7 +252,7 @@ class RulesController extends Controller
         ]);
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Qualitys editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -279,17 +269,15 @@ class RulesController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $registers = Rules::where('id','=',$request->id)->first();
+        $registers = Qualitys::where('id','=',$request->id)->first();
           
-        $registers->name = $request->name;
-        $registers->menus = $request->menus;
-        $registers->widgets = $request->widgets;
+        $registers->name = $request->name;;
         $registers->status = $request->status;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso editado com sucesso'
+            'message' => 'Qualitys editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -297,14 +285,14 @@ class RulesController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Qualitys::where('id','=',$id)->first();
           
         $registers->trash = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($registers->save()){
+        if($user->save()){
             return response()->json([
-            'message' => 'Ruleso mandado para lixeira com sucesso'
+            'message' => 'Qualitys mandado para lixeira com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -312,14 +300,14 @@ class RulesController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Qualitys::where('id','=',$id)->first();
           
         $registers->trash = 0;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso Restaurado com sucesso'
+            'message' => 'Qualityso Restaurado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -327,14 +315,14 @@ class RulesController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Qualitys::where('id','=',$id)->first();
           
         $registers->delete = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ruleso deletado com sucesso'
+            'message' => 'Qualityso deletado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -342,14 +330,14 @@ class RulesController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $registers = Rules::where('id','=',$id)->first();
+        $registers = Qualitys::where('id','=',$id)->first();
           
         $registers->status = $status;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'alterado status do Ruleso com sucesso'
+            'message' => 'alterado status do Qualityso com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -360,7 +348,7 @@ class RulesController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new RulesImport,$request->file('file'));
+        Excel::import(new QualitysImport,$request->file('file'));
            
         
         return response()->json([
@@ -369,15 +357,15 @@ class RulesController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new RulessExport, 'segments.csv');
+        return Excel::download(new QualitysExport, 'qualitys.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new RulessExportTemplate(), 'segmentstemplate.csv');
+        return Excel::download(new QualitysExportTemplate(), 'qualitystemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $registers = Rules::select('id', 'rules')
+        $registers = Qualitys::select('id', 'name')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
@@ -389,7 +377,7 @@ class RulesController extends Controller
         $update = [];
 
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Qualitys::whereIn('id',$ids)
             ->update($update);
         
         if($registers){
@@ -404,7 +392,7 @@ class RulesController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Qualitys::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -421,7 +409,7 @@ class RulesController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Qualitys::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -438,7 +426,7 @@ class RulesController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Rules::whereIn('id',$ids)
+        $registers = Qualitys::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
