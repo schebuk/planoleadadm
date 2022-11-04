@@ -477,7 +477,8 @@ export default {
             }
             else{
               this.columns = [
-                {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "clientId", "type": "int(10)", "label": "clientId"}, 
+                {"name": "userId", "type": "int(10)", "label": "userId"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]

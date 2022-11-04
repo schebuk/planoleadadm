@@ -11,11 +11,11 @@ use Illuminate\Support\Facades\Schema;
 
 use App\Models\Integrants;
 
-class IntegrantssController extends Controller
+class IntegrantsController extends Controller
 {
     public function index(Request $request)
     {
-        $columns = ['id', 'name','status','created_at'];
+        $columns = ['id', 'clientId', 'userId','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -200,7 +200,7 @@ class IntegrantssController extends Controller
                 break;
         }
 
-        $query =  Integrants::select('id', 'name','status','created_at')->orderBy($column, $dir);
+        $query =  Integrants::select('id', 'clientId', 'userId','status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -365,7 +365,7 @@ class IntegrantssController extends Controller
     }
     public function getTrash(Request $request) 
     {
-        $registers = Integrants::select('id', 'name')
+        $registers = Integrants::select('id')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')

@@ -22,6 +22,6 @@ class IntegrantsExportTemplate implements FromArray, WithHeadings
      */
     public function headings(): array
     {
-        return ['name', 'status'];
+        return ['clientId', 'userId','status'];
     }
 }

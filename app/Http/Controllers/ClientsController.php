@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\UsersExport;
-use App\Exports\UsersExportTemplate;
-use App\Imports\UsersImport;
+use App\Exports\ClientssExport;
+use App\Exports\ClientssExportTemplate;
+use App\Imports\ClientssImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Client;
-use App\Models\User;
+use App\Models\Clients;
 
 class ClientsController extends Controller
 {
@@ -91,7 +90,7 @@ class ClientsController extends Controller
                 break;
         }
 
-        $query =  User::orderBy($column, $dir);
+        $query =  Clients::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -120,7 +119,6 @@ class ClientsController extends Controller
         $users = $query
             ->where('trash','=',0)
             ->where('delete','=',0)
-            ->where('name','!=','admin')
             ->paginate($length);
         return ['data' => $users, 'draw' => $request->input('draw')];
     }
@@ -202,7 +200,7 @@ class ClientsController extends Controller
                 break;
         }
 
-        $query =  User::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
+        $query =  Clients::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -236,16 +234,16 @@ class ClientsController extends Controller
         return ['data' => $users, 'draw' => $request->input('draw')];
     }
     
-    public function getUserById(Request $request,$id)
+    public function getClientsById(Request $request,$id)
     {
-        return User::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
+        return Clients::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $user = new User([
+        $user = new Clients([
             'name' => $request->name,
             'email' => $request->email,
             'telephone' => $request->telephone,
@@ -277,7 +275,7 @@ class ClientsController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $user = User::where('id','=',$request->id)->first();
+        $user = Clients::where('id','=',$request->id)->first();
           
         $user->name = $request->name;
         $user->email = $request->email;
@@ -297,7 +295,7 @@ class ClientsController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $user = Clients::where('id','=',$id)->first();
           
         $user->trash = 1;
         $user->updated_at = date("Y-m-d H:i:s");
@@ -312,7 +310,7 @@ class ClientsController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $user = Clients::where('id','=',$id)->first();
           
         $user->trash = 0;
         $user->updated_at = date("Y-m-d H:i:s");
@@ -327,7 +325,7 @@ class ClientsController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $user = User::where('id','=',$id)->first();
+        $user = Clients::where('id','=',$id)->first();
           
         $user->delete = 1;
         $user->updated_at = date("Y-m-d H:i:s");
@@ -342,7 +340,7 @@ class ClientsController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $user = User::where('id','=',$id)->first();
+        $user = Clients::where('id','=',$id)->first();
           
         $user->status = $status;
         $user->updated_at = date("Y-m-d H:i:s");
@@ -360,7 +358,7 @@ class ClientsController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new UsersImport,$request->file('file'));
+        Excel::import(new ClientssImport,$request->file('file'));
            
         
         return response()->json([
@@ -369,15 +367,15 @@ class ClientsController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new UsersExport, 'users.csv');
+        return Excel::download(new ClientssExport, 'users.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new UsersExportTemplate(), 'userstemplate.csv');
+        return Excel::download(new ClientssExportTemplate(), 'userstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $users = User::select('id', 'name', 'email', 'user', 'telephone')
+        $users = Clients::select('id')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
@@ -395,7 +393,7 @@ class ClientsController extends Controller
         }
         
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $users = User::whereIn('id',$ids)
+        $users = Clients::whereIn('id',$ids)
             ->update($update);
         
         if($users){
@@ -410,7 +408,7 @@ class ClientsController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $users = Clients::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -427,7 +425,7 @@ class ClientsController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $users = Clients::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -444,7 +442,7 @@ class ClientsController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $users = User::whereIn('id',$ids)
+        $users = Clients::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")

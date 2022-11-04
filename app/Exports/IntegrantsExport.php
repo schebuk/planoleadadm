@@ -19,6 +19,6 @@ class IntegrantsExport implements FromCollection, WithHeadings
     }
     public function headings(): array
     {
-        return ['name', 'status','created_at'];
+        return ['id', 'clientId', 'userId','status','created_at'];
     }
 }
