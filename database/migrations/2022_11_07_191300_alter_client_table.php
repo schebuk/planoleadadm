@@ -16,8 +16,8 @@ return new class extends Migration
         
         Schema::table('clients', function (Blueprint $table) {
             $table->dropForeign('clients_clientuserid_foreign');
-            $table->renameColumn('clientUserId', 'userId');
-            $table->bigInteger('userId')->unsigned()->change();
+            $table->dropColumn('clientUserId');
+            $table->bigInteger('userId')->unsigned();
             $table->foreign('userId')->references('id')->on('users');
         });
     }
