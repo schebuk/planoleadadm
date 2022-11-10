@@ -41,29 +41,55 @@
                   v-if="field.type == 'json'"
                 >
                 
-                <p>{{field.name}}</p>
-                <v-row>
-                    <v-col cols="2" v-for="content in field.contents" :key="content.name">
-                      <v-checkbox 
-                        :v-model="formreturn[field.name]" 
-                        :value="content.name" 
-                        :label="content.name"
-                        :rules="checkboxRules"
-                      ></v-checkbox>
-                  </v-col>
-                </v-row>
+                  <p>{{field.name}}</p>
+                  <v-row>
+                      <v-col cols="2" v-for="content in field.contents" :key="content.name">
+                        <v-checkbox 
+                          :v-model="formreturn[field.name]" 
+                          :value="content.name" 
+                          :label="content.name"
+                          :rules="checkboxRules"
+                        ></v-checkbox>
+                    </v-col>
+                  </v-row>
                 </v-container>
                   
-                  <v-select v-if="field.type == 'related'"
-                  v-model="formreturn[field.name]"
-                    :items="related[field.name]"
-                    :label="field.name"
-                    item-text="name"
-                    item-value="id"
-                    return-object
-                    required
-                    :rules="relatedRules"
-                  ></v-select>
+                <v-select v-if="field.type == 'related' && field.name !='cityId'"
+                v-model="formreturn[field.name]"
+                  :items="related[field.name]"
+                  :label="field.name"
+                  item-text="name"
+                  item-value="id"
+                  return-object
+                  required
+                  :rules="relatedRules"
+                ></v-select>
+                  
+                
+                <v-row  v-if="field.type == 'related' && field.name =='cityId'">
+                    <v-col cols="12">
+                      <v-select
+                          :items="states"
+                          label="estado"
+                          item-text="abreviation"
+                          item-value="id"
+                          return-object
+                          required
+                          :rules="relatedRules"
+                          @change="loadCities($event)"
+                        ></v-select>
+                        <v-select
+                          v-model="formreturn[field.name]"
+                            :items="cities"
+                            label="cidade"
+                            item-text="name"
+                            item-value="id"
+                            return-object
+                            required
+                            :rules="relatedRules"
+                          ></v-select>
+                  </v-col>
+                </v-row>
 
                   
                   <v-radio-group  
@@ -149,6 +175,10 @@
               v => v == 0 || 'Campo e obrigatorio'
             ]
           let formreturn =[]
+
+          let states=[]
+
+          let cities=[]
           
           if(this.registerId){
             axios.get(this.url+this.registerId)
@@ -167,9 +197,6 @@
               formreturn[field.name] = ''
               if (field.type =='json'){
                 formreturn[field.name] = []
-                field.content.forEach((content) => {
-                  formreturn[field.name][content.name].checked = false
-                })
               }
             })
           }
@@ -181,6 +208,8 @@
             relatedRules:relatedRules,
             numberRules:numberRules,
             boolRules:boolRules,
+            states:states,
+            cities:cities,
           }
         },
         methods: {
@@ -216,15 +245,37 @@
           checkfields(){
             this.fields.forEach((field) => {
               if (field.type == 'related'){
-                axios.get(field.url + field.description, {})
-                  .then(response => {
-                    this.$set(this.related, field.name, response.data.data)           
-                  })
-                  .catch((err) => {
-                    console.log(err)
-                  })               
-                }                
-            });        
+                if (field.name != 'cityId'){
+                  axios.get(field.url + field.description, {})
+                    .then(response => {
+                      this.$set(this.related, field.name, response.data.data)           
+                    })
+                    .catch((err) => {
+                      console.log(err)
+                    })  
+                }  
+                else{
+                  axios.get('/api/state/getselect/', {})
+                    .then(response => {
+                      this.states=response.data.data       
+                    })
+                    .catch((err) => {
+                      console.log(err)
+                    })
+                }             
+                  
+              }        
+            })      
+          },
+          loadCities(event){
+            axios.get('/api/city/getselect/'+event.id, {})
+              .then(response => {
+                this.cities=response.data.data       
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+
           },
         }
     }

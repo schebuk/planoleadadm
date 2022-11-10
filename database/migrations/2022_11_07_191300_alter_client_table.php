@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('client_users', function (Blueprint $table) {
-            $table->boolean('status')->default(0);
-            $table->boolean('trash')->default(0);
-            $table->boolean('delete')->default(0);   
+        
+        Schema::table('clients', function (Blueprint $table) {
+            $table->dropForeign('clients_clientuserid_foreign');
+            $table->renameColumn('clientUserId', 'userId');
+            $table->bigInteger('userId')->unsigned()->change();
+            $table->foreign('userId')->references('id')->on('users');
         });
     }
 

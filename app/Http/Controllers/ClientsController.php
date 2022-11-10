@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\ClientssExport;
-use App\Exports\ClientssExportTemplate;
-use App\Imports\ClientssImport;
+use App\Exports\ClientsExport;
+use App\Exports\ClientsExportTemplate;
+use App\Imports\ClientsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
@@ -13,9 +13,16 @@ use App\Models\Clients;
 
 class ClientsController extends Controller
 {
+    public function getSelect(Request $request, $description)
+    {
+    	$rules = Clients::select('id', $description . ' AS name')->get();
+        
+        return ['data' => $rules];
+    	
+    }
     public function index(Request $request)
     {
-        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
+        $columns = ['id','name','firstName','lastName','userId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status','created_at'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -116,16 +123,17 @@ class ClientsController extends Controller
             }
         }
 
-        $users = $query
+        $registers = $query
             ->where('trash','=',0)
             ->where('delete','=',0)
             ->paginate($length);
-        return ['data' => $users, 'draw' => $request->input('draw')];
+        return ['data' => $registers, 'draw' => $request->input('draw')];
     }
 
     public function getTrashList(Request $request)
     {
-        $columns = ['id', 'name', 'email', 'user','telephone','regraId','status','created_at'];
+        $columns = ['id','name','firstName','lastName','userId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status','created_at'];
+        
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -200,7 +208,7 @@ class ClientsController extends Controller
                 break;
         }
 
-        $query =  Clients::select('id', 'name', 'email', 'user', 'telephone', 'regraId', 'status','created_at')->orderBy($column, $dir);
+        $query =  Clients::select('id','name','firstName','lastName','clientUserId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status','created_at')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -226,37 +234,48 @@ class ClientsController extends Controller
             }
         }
 
-        $users = $query
+        $registers = $query
             ->where('trash','=',1)
             ->where('delete','=',0)
             ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $users, 'draw' => $request->input('draw')];
+        return ['data' => $registers, 'draw' => $request->input('draw')];
     }
     
     public function getClientsById(Request $request,$id)
     {
-        return Clients::select('id', 'name', 'email', 'user','telephone','regraId','status','created_at')
+        return Clients::select('id','name','firstName','lastName','UserId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status','created_at')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $user = new Clients([
+        $registers = new Clients([
             'name' => $request->name,
-            'email' => $request->email,
-            'telephone' => $request->telephone,
-            'user' => $request->user,
-            'regraId' => $request->regraId,
+            'firstName'=> $request->firstName,
+            'lastName'=> $request->lastName,
+            'userId'=> $request->userId,
+            'email'=> $request->email,
+            'telephone'=> $request->telephone,
+            'telephoneBusiness'=> $request->telephoneBusiness,
+            'personType'=> $request->personType,
+            'documentNumber'=> $request->documentNumber,
+            'corporateName'=> $request->corporateName,
+            'CEP'=> $request->CEP,
+            'adress'=> $request->adress,
+            'adressComplement'=> $request->adressComplement,
+            'district'=> $request->district,
+            'cityId'=> $request->cityId,
+            'segmentId'=> $request->segmentId,
+            'balance'=> $request->balance,            
             'status' => $request->status,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
-            'password' => bcrypt('123456'),
             'trash' => 0,
             'delete' => 0
         ]);
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'Usuario editado com sucesso'
             ], 200);
@@ -275,17 +294,28 @@ class ClientsController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $user = Clients::where('id','=',$request->id)->first();
+        $registers = Clients::where('id','=',$request->id)->first();
           
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->telephone = $request->telephone;
-        $user->user = $request->user;
-        $user->regraId = $request->regraId;
-        $user->status = $request->status;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->name = $request->name;
+        $registers->firstName = $request->firstName;
+        $registers->lastName = $request->lastName;
+        $registers->userId = $request->userId;
+        $registers->email = $request->email;
+        $registers->telephone = $request->telephone;
+        $registers->telephoneBusiness = $request->telephoneBusiness;
+        $registers->personType = $request->personType;
+        $registers->documentNumber = $request->documentNumber;
+        $registers->corporateName = $request->corporateName;
+        $registers->CEP = $request->CEP;
+        $registers->adress = $request->adress;
+        $registers->adressComplement = $request->adressComplement;
+        $registers->district = $request->district;
+        $registers->cityId = $request->cityId;
+        $registers->segmentId = $request->segmentId;
+        $registers->balance = $request->balance;        
+        $registers->status = $request->status;
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'Usuario editado com sucesso'
             ], 200);
@@ -295,12 +325,12 @@ class ClientsController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $user = Clients::where('id','=',$id)->first();
+        $registers = Clients::where('id','=',$id)->first();
           
-        $user->trash = 1;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->trash = 1;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'Usuario mandado para lixeira com sucesso'
             ], 200);
@@ -310,12 +340,12 @@ class ClientsController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $user = Clients::where('id','=',$id)->first();
+        $registers = Clients::where('id','=',$id)->first();
           
-        $user->trash = 0;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->trash = 0;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'Usuario Restaurado com sucesso'
             ], 200);
@@ -325,12 +355,12 @@ class ClientsController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $user = Clients::where('id','=',$id)->first();
+        $registers = Clients::where('id','=',$id)->first();
           
-        $user->delete = 1;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->delete = 1;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'Usuario deletado com sucesso'
             ], 200);
@@ -340,12 +370,12 @@ class ClientsController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $user = Clients::where('id','=',$id)->first();
+        $registers = Clients::where('id','=',$id)->first();
           
-        $user->status = $status;
-        $user->updated_at = date("Y-m-d H:i:s");
+        $registers->status = $status;
+        $registers->updated_at = date("Y-m-d H:i:s");
         
-        if($user->save()){
+        if($registers->save()){
             return response()->json([
             'message' => 'alterado status do Usuario com sucesso'
             ], 200);
@@ -358,7 +388,7 @@ class ClientsController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new ClientssImport,$request->file('file'));
+        Excel::import(new ClientsImport,$request->file('file'));
            
         
         return response()->json([
@@ -367,20 +397,20 @@ class ClientsController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new ClientssExport, 'users.csv');
+        return Excel::download(new ClientsExport, 'users.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new ClientssExportTemplate(), 'userstemplate.csv');
+        return Excel::download(new ClientsExportTemplate(), 'userstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $users = Clients::select('id')
+        $registers = Clients::select('id')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
             ->get();
-        return $users;
+        return $registers;
     }
     public function massEdit(Request $request){
         $ids = explode(',',$request->ids);
@@ -393,10 +423,10 @@ class ClientsController extends Controller
         }
         
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $users = Clients::whereIn('id',$ids)
+        $registers = Clients::whereIn('id',$ids)
             ->update($update);
         
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros editados com sucesso'
             ], 200);
@@ -408,13 +438,13 @@ class ClientsController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $users = Clients::whereIn('id',$ids)
+        $registers = Clients::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros mandados para lixeira com sucesso'
             ], 200);
@@ -425,13 +455,13 @@ class ClientsController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $users = Clients::whereIn('id',$ids)
+        $registers = Clients::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros restaurados com sucesso'
             ], 200);
@@ -442,13 +472,13 @@ class ClientsController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $users = Clients::whereIn('id',$ids)
+        $registers = Clients::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
             ]);
                     
-        if($users){
+        if($registers){
             return response()->json([
             'message' => count($ids).' Registros deletados com sucesso'
             ], 200);

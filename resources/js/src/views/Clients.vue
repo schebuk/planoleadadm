@@ -383,6 +383,21 @@ export default {
       };
       let fields = [
         {name:'name', type:'text'},
+        {name:'firstName', type:'text'},
+        {name:'lastName', type:'text'},
+        {name:'email', type:'text'},
+        {name:'telephone', type:'text'},
+        {name:'telephoneBusiness', type:'text'},
+        {name:'personType', type:'text'},
+        {name:'documentNumber', type:'number'},
+        {name:'corporateName', type:'text'},
+        {name:'CEP', type:'text'},
+        {name:'adress', type:'text'},
+        {name:'adressComplement', type:'text'},
+        {name:'district', type:'text'},
+        {name:'cityId', type:'related',table:'name',url:'/api/city/getselect/',description:'name'},
+        {name:'segmentId', type:'related',table:'name',url:'/api/segments/getselect/',description:'name'},
+        {name:'balance', type:'text'},
         {name:'status', type:'bool'},
       ]
       let bulkFields = [
@@ -478,6 +493,22 @@ export default {
             else{
               this.columns = [
                 {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "firstName", "type": "varchar(255)", "label": "firstName"}, 
+                {"name": "lastName", "type": "varchar(255)", "label": "lastName"}, 
+                {"name": "userId", "type": "varchar(255)", "label": "userId"}, 
+                {"name": "email", "type": "varchar(255)", "label": "email"}, 
+                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
+                {"name": "telephoneBusiness", "type": "varchar(255)", "label": "telephoneBusiness"}, 
+                {"name": "personType", "type": "varchar(255)", "label": "personType"}, 
+                {"name": "documentNumber", "type": "varchar(255)", "label": "documentNumber"}, 
+                {"name": "corporateName", "type": "varchar(255)", "label": "corporateName"}, 
+                {"name": "CEP", "type": "varchar(255)", "label": "CEP"}, 
+                {"name": "adress", "type": "varchar(255)", "label": "adress"}, 
+                {"name": "adressComplement", "type": "varchar(255)", "label": "adressComplement"}, 
+                {"name": "district", "type": "varchar(255)", "label": "district"}, 
+                {"name": "cityId", "type": "varchar(255)", "label": "cityId"}, 
+                {"name": "segmentId", "type": "varchar(255)", "label": "segmentId"}, 
+                {"name": "balance", "type": "varchar(255)", "label": "balance"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]
@@ -585,7 +616,24 @@ export default {
       save(formfields,modalname){        
         let  values = {
           name: formfields.name,
+          firstName: formfields.firstName, 
+          lastName: formfields.lastName, 
+          userId: formfields.userId, 
+          email: formfields.email, 
+          telephone: formfields.telephone, 
+          telephoneBusiness: formfields.telephoneBusiness, 
+          personType: formfields.personType, 
+          documentNumber: formfields.documentNumber, 
+          corporateName: formfields.corporateName, 
+          CEP: formfields.CEP, 
+          adress: formfields.adress, 
+          adressComplement: formfields.adressComplement, 
+          district: formfields.district, 
+          cityId: formfields.cityId, 
+          segmentId: formfields.segmentId, 
+          balance: formfields.balance, 
           status: formfields.status,
+          userId: 1,       
         }
         if(formfields.id){
           values['id'] = formfields.id

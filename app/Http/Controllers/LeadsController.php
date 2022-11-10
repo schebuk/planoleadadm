@@ -3,26 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\AdsExport;
-use App\Exports\AdsExportTemplate;
-use App\Imports\AdsImport;
+use App\Exports\LeadsExport;
+use App\Exports\LeadsExportTemplate;
+use App\Imports\LeadsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Schema;
 
-use App\Models\Ads;
+use App\Models\Leads;
 
-class AdsController extends Controller
+class LeadsController extends Controller
 {
-    public function getSelect(Request $request, $description)
-    {
-    	$ads = Ads::select('id', $description . ' AS name')->get();
-        
-        return ['data' => $ads];
-    	
-    }
     public function index(Request $request)
     {
-        $columns = ['name','price','codChannel', 'status','created_at'];
+        $columns = ['id','name','email','telephone','cityId','adId','negReason','devReason','negDate','devDate','category','price','clientId','qualityId','integrantId','note','font','segmentId','segmentCNPJType','segmentPersonType','segmentOperator','segmentLives','exibitionDate','status','created_at','leadTypeId'];
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -97,7 +90,7 @@ class AdsController extends Controller
                 break;
         }
 
-        $query =  Ads::orderBy($column, $dir);
+        $query =  Leads::orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -123,16 +116,17 @@ class AdsController extends Controller
             }
         }
 
-        $registers = $query
+        $registerss = $query
             ->where('trash','=',0)
             ->where('delete','=',0)
             ->paginate($length);
-        return ['data' => $registers, 'draw' => $request->input('draw')];
+        return ['data' => $registerss, 'draw' => $request->input('draw')];
     }
 
     public function getTrashList(Request $request)
     {
-        $columns = ['name','price','codChannel', 'status','created_at'];
+        $columns = ['id','name','email','telephone','cityId','adId','negReason','devReason','negDate','devDate','category','price','clientId','qualityId','integrantId','note','font','segmentId','segmentCNPJType','segmentPersonType','segmentOperator','segmentLives','exibitionDate','status','created_at','leadTypeId'];
+        
 
         $length = $request->input('length');
         $column = $request->input('column') == 0? 'id':$request->input('column');
@@ -207,7 +201,7 @@ class AdsController extends Controller
                 break;
         }
 
-        $query =  Ads::select('name','price','codChannel', 'status','created_at')->orderBy($column, $dir);
+        $query =  Leads::select('id','name','email','telephone','cityId','adId','negReason','devReason','negDate','devDate','category','price','clientId','qualityId','integrantId','note','font','segmentId','segmentCNPJType','segmentPersonType','segmentOperator','segmentLives','exibitionDate','status','created_at','leadTypeId')->orderBy($column, $dir);
 
         if ($searchValue && $searchField) {
             if ($request->input('search2')){
@@ -233,27 +227,48 @@ class AdsController extends Controller
             }
         }
 
-        $registers = $query
+        $registerss = $query
             ->where('trash','=',1)
             ->where('delete','=',0)
+            ->where('name','!=','admin')
             ->paginate($length);
-        return ['data' => $registers, 'draw' => $request->input('draw')];
+        return ['data' => $registerss, 'draw' => $request->input('draw')];
     }
     
-    public function getById(Request $request,$id)
+    public function getLeadsById(Request $request,$id)
     {
-        return Ads::select('name','price','codChannel', 'status','created_at')
+        return Leads::select('id','name','email','telephone','cityId','adId','negReason','devReason','negDate','devDate','category','price','clientId','qualityId','integrantId','note','font','segmentId','segmentCNPJType','segmentPersonType','segmentOperator','segmentLives','exibitionDate','status','created_at','leadTypeId')
             ->where('id','=',$id)
             ->first();
     }
 
     public function save(Request $request)
     {  
-        $registers = new Ads([
+        $registers = new Leads([
             'name' => $request->name,
-            'status' => $request->status,
+            'email' => $request->email,
+            'telephone' => $request->telephone,
+            'cityId' => $request->cityId,
+            'adId' => $request->adId,
+            'negReason' => $request->negReason,
+            'devReason' => $request->devReason,
+            'negDate' => $request->negDate,
+            'devDate' => $request->devDate,
+            'category' => $request->category,
             'price' => $request->price,
-            'codChannel' => $request->codChannel,
+            'clientId' => $request->clientId,
+            'qualityId' => $request->qualityId,
+            'integrantId' => $request->integrantId,
+            'note' => $request->note,
+            'font' => $request->font,
+            'segmentId' => $request->segmentId,
+            'segmentCNPJType' => $request->segmentCNPJType,
+            'segmentPersonType' => $request->segmentPersonType,
+            'segmentOperator' => $request->segmentOperator,
+            'segmentLives' => $request->segmentLives,
+            'exibitionDate' => $request->exibitionDate,
+            'status' => $request->status,
+            'leadTypeId' => $request->leadTypeId,
             'created_at' => date("Y-m-d H:i:s"),
             'updated_at' => date("Y-m-d H:i:s"),
             'trash' => 0,
@@ -261,7 +276,7 @@ class AdsController extends Controller
         ]);
         if($registers->save()){
             return response()->json([
-            'message' => 'Ads cadastrado com sucesso'
+            'message' => 'Usuario editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -278,17 +293,37 @@ class AdsController extends Controller
             'regraId' => 'required|integer',
             'status' => 'boolean',
         ]);*/
-        $registers = Ads::where('id','=',$request->id)->first();
+        $registers = Leads::where('id','=',$request->id)->first();
           
         $registers->name = $request->name;
+        $registers->email = $request->email;
+        $registers->telephone = $request->telephone;
+        $registers->cityId = $request->cityId;
+        $registers->adId = $request->adId;
+        $registers->negReason = $request->negReason;
+        $registers->devReason = $request->devReason;
+        $registers->negDate = $request->negDate;
+        $registers->devDate = $request->devDate;
+        $registers->category = $request->category;
         $registers->price = $request->price;
-        $registers->codChannel = $request->codChannel;
+        $registers->clientId = $request->clientId;
+        $registers->qualityId = $request->qualityId;
+        $registers->integrantId = $request->integrantId;
+        $registers->note = $request->note;
+        $registers->font = $request->font;
+        $registers->segmentId = $request->segmentId;
+        $registers->segmentCNPJType = $request->segmentCNPJType;
+        $registers->segmentPersonType = $request->segmentPersonType;
+        $registers->segmentOperator = $request->segmentOperator;
+        $registers->segmentLives = $request->segmentLives;
+        $registers->exibitionDate = $request->exibitionDate;
         $registers->status = $request->status;
-        $registers->updated_at = date("Y-m-d H:i:s");
+        $registers->leadTypeId = $request->leadTypeId;
+        $registers->status = $request->status;
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ads editado com sucesso'
+            'message' => 'Usuario editado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -296,14 +331,14 @@ class AdsController extends Controller
     }
     public function trash(Request $request, $id)
     {
-        $registers = Ads::where('id','=',$id)->first();
+        $registers = Leads::where('id','=',$id)->first();
           
         $registers->trash = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Ads mandado para lixeira com sucesso'
+            'message' => 'Usuario mandado para lixeira com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -311,14 +346,14 @@ class AdsController extends Controller
     }
     public function restore(Request $request, $id)
     {
-        $registers = Ads::where('id','=',$id)->first();
+        $registers = Leads::where('id','=',$id)->first();
           
         $registers->trash = 0;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Adso Restaurado com sucesso'
+            'message' => 'Usuario Restaurado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -326,14 +361,14 @@ class AdsController extends Controller
     }
     public function delete(Request $request, $id)
     {
-        $registers = Ads::where('id','=',$id)->first();
+        $registers = Leads::where('id','=',$id)->first();
           
         $registers->delete = 1;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'Adso deletado com sucesso'
+            'message' => 'Usuario deletado com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -341,14 +376,14 @@ class AdsController extends Controller
     }
     public function status(Request $request, $id, $status)
     {
-        $registers = Ads::where('id','=',$id)->first();
+        $registers = Leads::where('id','=',$id)->first();
           
         $registers->status = $status;
         $registers->updated_at = date("Y-m-d H:i:s");
         
         if($registers->save()){
             return response()->json([
-            'message' => 'alterado status do Adso com sucesso'
+            'message' => 'alterado status do Usuario com sucesso'
             ], 200);
         }else{
             return response()->json(['error'=>'Provide proper details']);
@@ -359,7 +394,7 @@ class AdsController extends Controller
         $validatedData = $request->validate([
            'file' => 'required',
         ]);
-        Excel::import(new AdsImport,$request->file('file'));
+        Excel::import(new LeadsImport,$request->file('file'));
            
         
         return response()->json([
@@ -368,30 +403,36 @@ class AdsController extends Controller
     }
     public function export(Request $request) 
     {
-        return Excel::download(new AdsExport, 'qualitys.csv');
+        return Excel::download(new LeadsExport, 'users.csv');
     }
     public function exportTemplate(Request $request) 
     {
-        return Excel::download(new AdsExportTemplate(), 'qualitystemplate.csv');
+        return Excel::download(new LeadsExportTemplate(), 'userstemplate.csv');
     }
     public function getTrash(Request $request) 
     {
-        $registers = Ads::select('id', 'name')
+        $registerss = Leads::select('id')
             ->where('trash','=',1)
             ->where('delete','!=',1)
             ->orderBy('id', 'desc')
             ->get();
-        return $registers;
+        return $registerss;
     }
     public function massEdit(Request $request){
         $ids = explode(',',$request->ids);
         $update = [];
-
+        if ($request->regraId){
+            $update["regraId"] = $request->regraId;
+        }
+        if ($request->status != ''){
+            $update["status"] = $request->status;
+        }
+        
         $update["updated_at"] = date("Y-m-d H:i:s");
-        $registers = Ads::whereIn('id',$ids)
+        $registerss = Leads::whereIn('id',$ids)
             ->update($update);
         
-        if($registers){
+        if($registerss){
             return response()->json([
             'message' => count($ids).' Registros editados com sucesso'
             ], 200);
@@ -403,7 +444,7 @@ class AdsController extends Controller
     }
     public function massTrash(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Ads::whereIn('id',$ids)
+        $registers = Leads::whereIn('id',$ids)
             ->update([
                 'trash'=>1,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -420,7 +461,7 @@ class AdsController extends Controller
     }
     public function massRestore(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Ads::whereIn('id',$ids)
+        $registers = Leads::whereIn('id',$ids)
             ->update([
                 'trash'=>0,
                 'updated_at' => date("Y-m-d H:i:s")
@@ -437,7 +478,7 @@ class AdsController extends Controller
     }
     public function massDelete(Request $request){
         $ids = explode(',',$request->ids);
-        $registers = Ads::whereIn('id',$ids)
+        $registers = Leads::whereIn('id',$ids)
             ->update([
                 'delete'=>1,
                 'updated_at' => date("Y-m-d H:i:s")

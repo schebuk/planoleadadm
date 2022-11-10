@@ -13,6 +13,13 @@ use App\Models\Qualitys;
 
 class QualitysController extends Controller
 {
+    public function getSelect(Request $request, $description)
+    {
+    	$rules = Qualitys::select('id', $description . ' AS name')->get();
+        
+        return ['data' => $rules];
+    	
+    }
     public function index(Request $request)
     {
         $columns = ['id', 'name','status','created_at'];

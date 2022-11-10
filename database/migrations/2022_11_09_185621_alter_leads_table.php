@@ -13,10 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('client_users', function (Blueprint $table) {
-            $table->boolean('status')->default(0);
-            $table->boolean('trash')->default(0);
-            $table->boolean('delete')->default(0);   
+        Schema::table('leads', function (Blueprint $table) {
+            $table->dropForeign('leads_health_ensurance_integrantid_foreign');
+            $table->dropColumn('integrantId');
         });
     }
 

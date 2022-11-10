@@ -22,6 +22,6 @@ class ClientsExportTemplate implements FromArray, WithHeadings
      */
     public function headings(): array
     {
-        return ['name', 'status'];
+        return ['name','firstName','lastName','clientUserId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status'];
     }
 }

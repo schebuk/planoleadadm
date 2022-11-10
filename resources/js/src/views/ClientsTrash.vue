@@ -342,6 +342,22 @@ export default {
             else{
               this.columns = [
                 {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "firstName", "type": "varchar(255)", "label": "firstName"}, 
+                {"name": "lastName", "type": "varchar(255)", "label": "lastName"}, 
+                {"name": "userId", "type": "varchar(255)", "label": "userId"}, 
+                {"name": "email", "type": "varchar(255)", "label": "email"}, 
+                {"name": "telephone", "type": "varchar(255)", "label": "telephone"}, 
+                {"name": "telephoneBusiness", "type": "varchar(255)", "label": "telephoneBusiness"}, 
+                {"name": "personType", "type": "varchar(255)", "label": "personType"}, 
+                {"name": "documentNumber", "type": "varchar(255)", "label": "documentNumber"}, 
+                {"name": "corporateName", "type": "varchar(255)", "label": "corporateName"}, 
+                {"name": "CEP", "type": "varchar(255)", "label": "CEP"}, 
+                {"name": "adress", "type": "varchar(255)", "label": "adress"}, 
+                {"name": "adressComplement", "type": "varchar(255)", "label": "adressComplement"}, 
+                {"name": "district", "type": "varchar(255)", "label": "district"}, 
+                {"name": "cityId", "type": "varchar(255)", "label": "cityId"}, 
+                {"name": "segmentId", "type": "varchar(255)", "label": "segmentId"}, 
+                {"name": "balance", "type": "varchar(255)", "label": "balance"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]

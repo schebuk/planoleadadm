@@ -83,12 +83,12 @@
           rounded
           color="primary"
           dark
-          :to="{name:'integrants'}"
+          :to="{name:'leads'}"
         >     
             <v-icon 
               v-text="mdiArrowLeft" 
             ></v-icon> 
-            Segmentos
+            Leads
                           
         </v-btn>
       </v-col>
@@ -302,7 +302,7 @@ export default {
       }
     },
     methods: {
-      getRegisters(page = 1,url = '/api/integrants/trash/list/?page=') {
+      getRegisters(page = 1,url = '/api/leads/trash/list/?page=') {
         this.tableData.draw++;
         axios.get(url + page, {params: this.tableData})
           .then(response => {
@@ -334,7 +334,7 @@ export default {
           });
       },
       getColumns(){
-        axios.post('/api/config/columns/integrants',{userId:1})
+        axios.post('/api/config/columns/leads',{userId:1})
           .then(response => {
             if (response.data.data){
               this.columns = response.data.data
@@ -342,6 +342,27 @@ export default {
             else{
               this.columns = [
                 {"name": "name", "type": "varchar(255)", "label": "name"}, 
+                {"name": "email", "type": "varchar(255)", "label": "email"}, 
+                {"name": "telephone", "type": "int(11)", "label": "telephone"}, 
+                {"name": "cityId", "type": "int(10)", "label": "cityId"}, 
+                {"name": "adId", "type": "varchar(255)", "label": "adId"}, 
+                {"name": "negReason", "type": "varchar(255)", "label": "negReason"}, 
+                {"name": "devReason", "type": "varchar(255)", "label": "devReason"}, 
+                {"name": "negDate", "type": "varchar(255)", "label": "negDate"}, 
+                {"name": "devDate", "type": "varchar(255)", "label": "devDate"}, 
+                {"name": "category", "type": "varchar(255)", "label": "category"}, 
+                {"name": "price", "type": "varchar(255)", "label": "price"}, 
+                {"name": "clientId", "type": "varchar(255)", "label": "clientId"}, 
+                {"name": "qualityId", "type": "varchar(255)", "label": "qualityId"}, 
+                {"name": "note", "type": "varchar(255)", "label": "note"}, 
+                {"name": "font", "type": "varchar(255)", "label": "font"}, 
+                {"name": "segmentId", "type": "varchar(255)", "label": "segmentId"}, 
+                {"name": "segmentCNPJType", "type": "varchar(255)", "label": "segmentCNPJType"}, 
+                {"name": "segmentPersonType", "type": "varchar(255)", "label": "segmentPersonType"}, 
+                {"name": "segmentOperator", "type": "varchar(255)", "label": "segmentOperator"}, 
+                {"name": "segmentLives", "type": "varchar(255)", "label": "segmentLives"}, 
+                {"name": "exibitionDate", "type": "varchar(255)", "label": "exibitionDate"}, 
+                {"name": "leadTypeId", "type": "varchar(255)", "label": "leadTypeId"}, 
                 {"name": "status", "type": "tinyint(1)", "label": "status"}, 
                 {"name": "created_at", "type": "timestamp", "label": "created_at"}
               ]
@@ -432,7 +453,7 @@ export default {
         }
       },
       restore(id){
-        axios.get('/api/integrants/restore/'+id)
+        axios.get('/api/leads/restore/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -447,7 +468,7 @@ export default {
         this.getRegisters()
       },      
       deleteregister(id){
-        axios.get('/api/integrants/delete/'+id)
+        axios.get('/api/leads/delete/'+id)
           .then(response => {
             this.snackbar = true
             this.toastText = response.data.message
@@ -494,7 +515,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/integrants/restore/multiple', bodyFormData, {
+        axios.post('/api/leads/restore/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }
@@ -526,7 +547,7 @@ export default {
         })
         var bodyFormData = new FormData()
         bodyFormData.append('ids', this.selectedIds); 
-        axios.post('/api/integrants/delete/multiple', bodyFormData, {
+        axios.post('/api/leads/delete/multiple', bodyFormData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

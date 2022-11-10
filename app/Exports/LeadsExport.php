@@ -19,6 +19,6 @@ class ClientsExport implements FromCollection, WithHeadings
     }
     public function headings(): array
     {
-        return ['id','name','firstName','lastName','clientUserId','email','telephone','telephoneBusiness','personType','documentNumber','corporateName','CEP','adress','adressComplement','district','cityId','segmentId','balance','status','created_at'];
+        return ['id','name','email','telephone','cityId','adId','negReason','devReason','negDate','devDate','category','price','clientId','qualityId','integrantId','note','font','segmentId','segmentCNPJType','segmentPersonType','segmentOperator','segmentLives','exibitionDate','status','created_at','leadTypeId'];
     }
 }

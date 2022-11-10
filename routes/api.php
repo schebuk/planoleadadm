@@ -12,6 +12,8 @@ use App\Http\Controllers\IntegrantsController;
 use App\Http\Controllers\ClientsController;
 use App\Http\Controllers\ClientsUserController;
 use App\Http\Controllers\LeadsController;
+use App\Http\Controllers\CitysController;
+use App\Http\Controllers\StatesController;
 use App\Http\Controllers\ConfigurationsController;
 
 /*
@@ -69,6 +71,7 @@ Route::post('segments/import/', [SegmentsController::class, 'import']);
 Route::post('segments/export/template', [SegmentsController::class, 'exportTemplate']);
 Route::post('segments/export/', [SegmentsController::class, 'export']);
 Route::get('segments/gettrash/', [SegmentsController::class, 'getTrash']);
+Route::get('segments/getselect/{description}', [SegmentsController::class, 'getSelect']);
 Route::get('segments/{id}', [SegmentsController::class, 'getById']);
 
 Route::get('rules/', [RulesController::class, 'index']);
@@ -106,6 +109,7 @@ Route::post('qualitys/import/', [QualitysController::class, 'import']);
 Route::post('qualitys/export/template', [QualitysController::class, 'exportTemplate']);
 Route::post('qualitys/export/', [QualitysController::class, 'export']);
 Route::get('qualitys/gettrash/', [QualitysController::class, 'getTrash']);
+Route::get('qualitys/getselect/{description}', [QualitysController::class, 'getSelect']);
 Route::get('qualitys/{id}', [QualitysController::class, 'getById']);
 
 Route::get('ads/', [AdsController::class, 'index']);
@@ -124,6 +128,7 @@ Route::post('ads/import/', [AdsController::class, 'import']);
 Route::post('ads/export/template', [AdsController::class, 'exportTemplate']);
 Route::post('ads/export/', [AdsController::class, 'export']);
 Route::get('ads/gettrash/', [AdsController::class, 'getTrash']);
+Route::get('ads/getselect/{description}', [AdsController::class, 'getSelect']);
 Route::get('ads/{id}', [AdsController::class, 'getById']);
 
 Route::get('integrants/', [IntegrantsController::class, 'index']);
@@ -160,6 +165,7 @@ Route::post('clients/import/', [ClientsController::class, 'import']);
 Route::post('clients/export/template', [ClientsController::class, 'exportTemplate']);
 Route::post('clients/export/', [ClientsController::class, 'export']);
 Route::get('clients/gettrash/', [ClientsController::class, 'getTrash']);
+Route::get('clients/getselect/{description}', [ClientsController::class, 'getSelect']);
 Route::get('clients/{id}', [ClientsController::class, 'getById']);
 
 Route::get('clients-user/', [ClientsUserController::class, 'index']);
@@ -183,6 +189,7 @@ Route::get('clients-user/', [ClientsUserController::class, 'index']);
 Route::post('clients-user/save/', [ClientsUserController::class, 'save']);
 
 Route::post('leads/edit/multiple/', [LeadsController::class, 'massEdit']);
+Route::post('leads/save/', [LeadsController::class, 'save']);
 Route::post('leads/trash/multiple/', [LeadsController::class, 'massTrash']);
 Route::post('leads/restore/multiple/', [LeadsController::class, 'massRestore']);
 Route::post('leads/delete/multiple/', [LeadsController::class, 'massDelete']);
@@ -197,6 +204,9 @@ Route::post('leads/export/template', [LeadsController::class, 'exportTemplate'])
 Route::post('leads/export/', [LeadsController::class, 'export']);
 Route::get('leads/gettrash/', [LeadsController::class, 'getTrash']);
 Route::get('leads/{id}', [LeadsController::class, 'getById']);
+
+Route::get('city/getselect/{state}', [CitysController::class, 'getSelect']);
+Route::get('state/getselect/', [StatesController::class, 'getSelect']);
 
 Route::post('config/columns/save/', [ConfigurationsController::class, 'columnsSave']);
 Route::post('config/columns/{page}', [ConfigurationsController::class, 'columns']);
